@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WatchLog.Api/WatchLog.Api.csproj" />
+    <Project Path="src/WatchLog.Application/WatchLog.Application.csproj" />
+    <Project Path="src/WatchLog.Domain/WatchLog.Domain.csproj" />
+    <Project Path="src/WatchLog.Infrastructure/WatchLog.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WatchLog.Api.IntegrationTests/WatchLog.Api.IntegrationTests.csproj" />
+    <Project Path="tests/WatchLog.Application.Tests/WatchLog.Application.Tests.csproj" />
+  </Folder>
+</Solution>

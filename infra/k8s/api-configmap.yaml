@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watchlog-api-config
+  namespace: watchlog
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+  Jwt__Issuer: "watchlog"
+  Jwt__Audience: "watchlog.clients"
+  Jwt__AccessTokenMinutes: "15"
+  Jwt__RefreshTokenDays: "30"
+  Tmdb__BaseUrl: "https://api.themoviedb.org/3"
+  Tmdb__ImageBaseUrl: "https://image.tmdb.org/t/p/"

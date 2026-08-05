@@ -1,0 +1,72 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: watchlog_ci
+          POSTGRES_USER: watchlog
+          POSTGRES_PASSWORD: watchlog
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U watchlog"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore backend/WatchLog.slnx
+
+      - name: Build
+        run: dotnet build backend/WatchLog.slnx --no-restore -c Release
+
+      - name: Test
+        run: dotnet test backend/WatchLog.slnx --no-build -c Release --logger "trx;LogFileName=test-results.trx"
+        env:
+          ConnectionStrings__Default: "Host=localhost;Port=5432;Database=watchlog_ci;Username=watchlog;Password=watchlog"
+          ConnectionStrings__Redis: "localhost:6379"
+          Jwt__SigningKey: "ci-only-signing-key-not-for-production-use-32chars"
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -t watchlog-api:ci ./backend

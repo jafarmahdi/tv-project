@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: watchlog-api
+  namespace: watchlog
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600" # SignalR long-lived connections
+    cert-manager.io/cluster-issuer: letsencrypt-prod # remove if not using cert-manager
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.watchlog.example.com
+      secretName: watchlog-api-tls
+  rules:
+    - host: api.watchlog.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: watchlog-api
+                port:
+                  number: 80

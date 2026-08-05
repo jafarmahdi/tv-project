@@ -1,0 +1,52 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+artifacts/
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+## Rider / VS Code
+.idea/
+.vscode/
+*.swp
+
+## Environment / secrets
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+## Node / React (admin dashboard, phase 3)
+node_modules/
+dist/
+build/
+.pnpm-store/
+
+## Flutter (mobile/web/desktop app, phase 2)
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/android/.gradle/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Docker
+infra/postgres-data/
+infra/redis-data/
+infra/certs/*.pem
+infra/certs/*.key
