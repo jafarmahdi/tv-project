@@ -29,8 +29,9 @@ depth instead of every layer getting a shallow stub. Nothing here is started yet
 
 - GitHub Actions: add jobs for the Flutter app (build + test per platform) and the admin dashboard
   (lint + build), alongside the existing `backend-ci.yml`.
-- Container registry push + image tagging on tag/release, wired into the `infra/k8s` manifests
-  (currently a hand-editable starting point, not a Helm/Kustomize chart).
+- Extend the existing GHCR backend image publish flow with environment-aware tags, release
+  promotion, and automated rollout to the `infra/k8s` manifests (which are still a hand-editable
+  starting point, not a Helm/Kustomize chart).
 - Production TLS: real certs (cert-manager/ACME) for the nginx reverse proxy and k8s Ingress.
 - Observability: structured logging sink, tracing (OpenTelemetry), and alerting.
 

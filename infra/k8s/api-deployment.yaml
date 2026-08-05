@@ -15,9 +15,12 @@ spec:
       labels:
         app: watchlog-api
     spec:
+      # Uncomment if `ghcr.io/jafarmahdi/tv-project-api` stays private.
+      # imagePullSecrets:
+      #   - name: ghcr-creds
       containers:
         - name: api
-          image: ghcr.io/watchlog/api:latest # replace with your built/pushed image
+          image: ghcr.io/jafarmahdi/tv-project-api:latest
           ports:
             - containerPort: 8080
           envFrom:

@@ -80,6 +80,14 @@ dotnet test WatchLog.slnx
 Integration tests spin up real Postgres/Redis containers via Testcontainers automatically — no
 manual setup needed, just a running Docker daemon.
 
+### Publish the Kubernetes image
+
+Pushes to `main` (or a manual run of `.github/workflows/backend-ci.yml` on `main`) build, test, and
+publish the backend image to `ghcr.io/jafarmahdi/tv-project-api`.
+
+See [`infra/k8s/README.md`](infra/k8s/README.md) for the cluster apply order, runtime secrets, and
+the optional GHCR pull secret when the package is private.
+
 ### Adding a new migration after model changes
 
 ```bash
