@@ -17,8 +17,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<WatchLogDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default")));
+        services.AddDbContext<WatchLogDbContext>((sp, options) =>
+            options.UseNpgsql(sp.GetRequiredService<IConfiguration>().GetConnectionString("Default")));
 
         services
             .AddIdentityCore<ApplicationUser>(options =>
@@ -32,17 +32,18 @@ public static class DependencyInjection
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
-        services.AddSingleton<IConnectionMultiplexer>(_ =>
-            ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis") ?? "localhost:6379"));
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetConnectionString("Redis") ?? "localhost:6379"));
 
-        services.Configure<TmdbOptions>(configuration.GetSection(TmdbOptions.SectionName));
+        services.AddOptions<TmdbOptions>().BindConfiguration(TmdbOptions.SectionName);
         services.AddHttpClient<ITmdbClient, TmdbClient>((sp, client) =>
         {
-            var baseUrl = configuration.GetSection(TmdbOptions.SectionName)["BaseUrl"] ?? "https://api.themoviedb.org/3";
+            var baseUrl = sp.GetRequiredService<IConfiguration>().GetSection(TmdbOptions.SectionName)["BaseUrl"]
+                ?? "https://api.themoviedb.org/3";
             client.BaseAddress = new Uri(baseUrl);
         });
 
-        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddOptions<JwtOptions>().BindConfiguration(JwtOptions.SectionName);
 
         services.AddFido2(configuration.GetSection("Fido2"));
 
