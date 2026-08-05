@@ -11,6 +11,7 @@ internal static class SeedData
 {
     private static Guid GenreId(int tmdbId) => new($"00000000-0000-4000-8000-{tmdbId:D12}");
     private static Guid AchievementId(int index) => new($"10000000-0000-4000-8000-{index:D12}");
+    private static readonly DateTimeOffset SeededAt = new(2026, 8, 5, 0, 0, 0, TimeSpan.Zero);
 
     /// <summary>TMDB's official movie + TV genre lists (stable, public reference data — themoviedb.org/genre).</summary>
     public static readonly Genre[] Genres =
@@ -47,11 +48,11 @@ internal static class SeedData
     /// <summary>Codes here must match <c>WatchLog.Application.Achievements.AchievementService.Criteria</c>.</summary>
     public static readonly Achievement[] Achievements =
     [
-        new() { Id = AchievementId(1), Code = "first-watch", Name = "First Watch", Description = "Watched your first episode or movie.", CriteriaDescription = "Watch 1 episode or movie." },
-        new() { Id = AchievementId(2), Code = "episodes-50", Name = "Binge Starter", Description = "Watched 50 episodes.", CriteriaDescription = "Watch 50 episodes." },
-        new() { Id = AchievementId(3), Code = "episodes-100", Name = "Century Club", Description = "Watched 100 episodes.", CriteriaDescription = "Watch 100 episodes." },
-        new() { Id = AchievementId(4), Code = "episodes-500", Name = "Marathoner", Description = "Watched 500 episodes.", CriteriaDescription = "Watch 500 episodes." },
-        new() { Id = AchievementId(5), Code = "movies-25", Name = "Film Buff", Description = "Watched 25 movies.", CriteriaDescription = "Watch 25 movies." },
-        new() { Id = AchievementId(6), Code = "movies-100", Name = "Cinephile", Description = "Watched 100 movies.", CriteriaDescription = "Watch 100 movies." }
+        new() { Id = AchievementId(1), Code = "first-watch", Name = "First Watch", Description = "Watched your first episode or movie.", CriteriaDescription = "Watch 1 episode or movie.", CreatedAt = SeededAt },
+        new() { Id = AchievementId(2), Code = "episodes-50", Name = "Binge Starter", Description = "Watched 50 episodes.", CriteriaDescription = "Watch 50 episodes.", CreatedAt = SeededAt },
+        new() { Id = AchievementId(3), Code = "episodes-100", Name = "Century Club", Description = "Watched 100 episodes.", CriteriaDescription = "Watch 100 episodes.", CreatedAt = SeededAt },
+        new() { Id = AchievementId(4), Code = "episodes-500", Name = "Marathoner", Description = "Watched 500 episodes.", CriteriaDescription = "Watch 500 episodes.", CreatedAt = SeededAt },
+        new() { Id = AchievementId(5), Code = "movies-25", Name = "Film Buff", Description = "Watched 25 movies.", CriteriaDescription = "Watch 25 movies.", CreatedAt = SeededAt },
+        new() { Id = AchievementId(6), Code = "movies-100", Name = "Cinephile", Description = "Watched 100 movies.", CriteriaDescription = "Watch 100 movies.", CreatedAt = SeededAt }
     ];
 }
