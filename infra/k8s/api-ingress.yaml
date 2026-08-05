@@ -5,15 +5,18 @@ metadata:
   namespace: watchlog
   annotations:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600" # SignalR long-lived connections
-    cert-manager.io/cluster-issuer: letsencrypt-prod # remove if not using cert-manager
+    # Point this at whatever issuer fronts your cluster — cert-manager + Let's Encrypt for a
+    # public domain, or your own internal CA's ClusterIssuer for a lab/private domain like
+    # `*.watchlog.lab` (resolved via /etc/hosts, no public DNS needed).
+    cert-manager.io/cluster-issuer: watchlog-internal-ca
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - api.watchlog.example.com
+        - api.watchlog.lab
       secretName: watchlog-api-tls
   rules:
-    - host: api.watchlog.example.com
+    - host: api.watchlog.lab
       http:
         paths:
           - path: /

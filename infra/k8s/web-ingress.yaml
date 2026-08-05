@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: watchlog-web
+  namespace: watchlog
+  annotations:
+    # Same issuer as api-ingress.yaml — internal CA for a `*.watchlog.lab`-style private domain,
+    # or cert-manager + a public issuer if this is actually public-facing.
+    cert-manager.io/cluster-issuer: watchlog-internal-ca
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - watchlog.lab
+      secretName: watchlog-web-tls
+  rules:
+    - host: watchlog.lab
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: watchlog-web
+                port:
+                  number: 80

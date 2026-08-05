@@ -1,21 +1,42 @@
 # WatchLog — Roadmap
 
-This tracks scope the [build plan](../README.md) deliberately deferred so the backend got real
-depth instead of every layer getting a shallow stub. Nothing here is started yet.
+This tracks scope deliberately deferred so each layer got real depth instead of everything getting
+a shallow stub. Backend (phase 1) and the Flutter **web** client (phase 2) are done; what's below is
+what's left, and what's explicitly known to be missing from what already shipped.
 
-## Phase 2 — Flutter app (iOS / Android / Web / Windows / macOS / Linux)
+## Phase 2 follow-ups — Flutter app hardening
 
-- Project scaffold: Flutter workspace targeting all six platforms, Material 3, adaptive layouts.
-- Theming: dynamic color, dark/light, glassmorphism + soft-gradient design language (Apple TV /
-  Netflix / Letterboxd / Spotify inspired — not a TV Time clone).
-- Routing/state: `go_router` + a state layer (Riverpod or Bloc), a generated Dio client from the
-  API's OpenAPI/Swagger doc (`/swagger/v1/swagger.json`) so the client never hand-drifts from the API.
-- Localization: `ar`/`en`, full RTL support.
-- Screens: Splash, Login, Register, Home, Discover, Search, Details, Episode Page, Statistics,
-  Profile, Notifications, Settings, Premium, AI Assistant.
-- Offline mode: local cache (Drift/Isar) for watched data + optimistic offline edits with background sync.
-- Push notifications: FCM (Android/Web) + APNs (iOS/macOS) wired to the `devices` table already in
-  the schema — `IDeviceService`/`DevicesController` are ready to receive tokens today.
+The web client is real and working (`app/`) — Material 3 theme, `go_router` + Riverpod, a
+hand-written Dio client mirroring every backend controller, JWT auto-refresh, ar/en chrome
+localization with RTL, and the core screens: Splash, Login, Register, Home, Discover/Search,
+Details (movie + series), Episode Page (season tracking), Statistics, Profile, Notifications,
+Settings, AI Assistant. Known gaps, in roughly the order they'd bite:
+
+- **Native targets**: only `web` is enabled today (`flutter create --platforms=web`). Adding
+  iOS/Android/Windows/macOS/Linux is `flutter create .` with the remaining platform flags plus each
+  platform's usual setup (signing, entitlements, `flutter_secure_storage` in place of the current
+  `shared_preferences`-based token storage, which is web-only-acceptable but not native-shippable).
+- **Social/activity feed screen**: the backend's `SocialController` (follow, activity feed,
+  comments, likes) has no client screen yet — `Profile` only surfaces the user's own lists.
+- **Collections screen**: `CollectionsController` (curated Marvel/DC/Oscar-winners-style lists)
+  isn't surfaced in the client.
+- **Premium screen**: skipped — there's no subscription/payment feature anywhere in the backend
+  yet, so a Premium screen would be UI with nothing behind it.
+- **User ratings**: Details screens show TMDB's own `voteAverage` (read-only) but not a
+  submit-your-own-rating control — `RatingsController` expects the movie/series' *local* database
+  id, which today's `MovieDetailDto`/`SeriesDetailDto` don't expose (only `TmdbId`). Needs a small
+  backend DTO change before the client can wire it up.
+- **Offline mode**: no local cache (Drift/Isar) or optimistic offline edits yet — every screen is
+  online-only today.
+- **Push notifications**: in-app notifications (REST + live SignalR push) work; FCM/APNs device
+  registration doesn't — `IDeviceService`/`DevicesController` exist and are ready to receive tokens,
+  nothing calls them yet.
+- **Content localization**: the `ar`/`en` toggle covers the app's chrome (nav, auth, settings,
+  buttons) but not movie/series data — TMDB is always queried in English since the backend's
+  `ITmdbClient` doesn't forward a `language` param yet.
+- **Generated API client**: the Dio client + models are hand-written to mirror the backend DTOs
+  (documented per-file) rather than generated from `/swagger/v1/swagger.json` — fine at this size,
+  worth revisiting if the API surface keeps growing to avoid manual drift.
 
 ## Phase 3 — Admin dashboard (React + TailwindCSS)
 
@@ -27,12 +48,15 @@ depth instead of every layer getting a shallow stub. Nothing here is started yet
 
 ## Phase 4 — Infra & CI/CD hardening
 
-- GitHub Actions: add jobs for the Flutter app (build + test per platform) and the admin dashboard
-  (lint + build), alongside the existing `backend-ci.yml`.
-- Extend the existing GHCR backend image publish flow with environment-aware tags, release
-  promotion, and automated rollout to the `infra/k8s` manifests (which are still a hand-editable
-  starting point, not a Helm/Kustomize chart).
-- Production TLS: real certs (cert-manager/ACME) for the nginx reverse proxy and k8s Ingress.
+- `backend-ci.yml` and `frontend-ci.yml` both build/test/publish to GHCR on push to `main`; the
+  admin dashboard (phase 3) still needs its own CI job once it exists.
+- Extend the existing GHCR publish flows with environment-aware tags and release promotion, and
+  automate rollout to the `infra/k8s` manifests (still a hand-editable starting point per
+  service — `api-*`/`web-*` — not a Helm/Kustomize chart).
+- TLS today assumes either a real issuer (cert-manager + Let's Encrypt) or an internal cluster CA
+  for a private domain (`*.watchlog.lab` via `/etc/hosts`) — whichever applies, the cert-manager
+  `ClusterIssuer` name in `api-ingress.yaml`/`web-ingress.yaml` needs to match what's actually
+  running in the target cluster.
 - Observability: structured logging sink, tracing (OpenTelemetry), and alerting.
 
 ## Phase 5 — Real AI backend
@@ -40,7 +64,8 @@ depth instead of every layer getting a shallow stub. Nothing here is started yet
 - `IAiAssistantService` currently ships a genuine (non-fake) heuristic implementation — runtime
   parsing, "similar to X" TMDB lookups, genre-affinity from watch history. Swap in an LLM-backed
   implementation behind the same interface for genuinely open-ended prompts ("less confusing than
-  Dark") without touching `AiController` or the Flutter client.
+  Dark") without touching `AiController` or the Flutter client — the client's `AiAssistantScreen`
+  already talks to the real `/api/v1/ai/assistant/ask` endpoint, so a better backend is a drop-in.
 - Expand `Recommendations`/`AiHistory` into a proper feedback loop (thumbs up/down feeding back into
   ranking).
 

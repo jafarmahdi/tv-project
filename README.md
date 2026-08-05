@@ -1,10 +1,9 @@
 # WatchLog
 
 A TV Time-inspired series & movie tracker, being built with an original visual identity, clean
-architecture, and a real production-shaped backend. This repo is being built **backend-first**: the
-API + database are the deep, working part today; the Flutter app and React admin dashboard are
-deliberately not started yet (see [`docs/ROADMAP.md`](docs/ROADMAP.md)) rather than shipped as
-half-finished stubs.
+architecture, and a real production-shaped backend + web client. Built **backend-first**, then the
+Flutter web app; the React admin dashboard is deliberately not started yet (see
+[`docs/ROADMAP.md`](docs/ROADMAP.md)) rather than shipped as a half-finished stub.
 
 ## What's here today
 
@@ -18,14 +17,21 @@ backend/            ASP.NET Core 9 Web API — Clean Architecture, fully working
   tests/
     WatchLog.Application.Tests/       unit tests (xUnit + FluentAssertions + Moq)
     WatchLog.Api.IntegrationTests/    integration tests (WebApplicationFactory + Testcontainers)
+app/                 Flutter web client — Material 3, Riverpod, go_router
+  lib/
+    core/             theme, router, network (Dio + JWT auto-refresh), models, localization (ar/en + RTL)
+    features/         splash, auth, home, discover, details, episode tracking, stats, profile,
+                       notifications, settings, AI assistant
 infra/
-  docker-compose.yml  postgres + redis + api + nginx
+  docker-compose.yml  postgres + redis + api + web + nginx
   nginx/nginx.conf
-  k8s/                Deployment/Service/Ingress starting point
+  k8s/                Deployment/Service/Ingress for both api and web
 docs/
   ER-DIAGRAM.md        mermaid schema
   ROADMAP.md           what's deliberately not built yet, and why
-.github/workflows/backend-ci.yml
+.github/workflows/
+  backend-ci.yml       build, test, publish ghcr.io/jafarmahdi/tv-project-api
+  frontend-ci.yml      analyze, test, publish ghcr.io/jafarmahdi/tv-project-web
 ```
 
 ## Feature surface implemented in the API
@@ -57,6 +63,16 @@ docker compose --env-file .env -f infra/docker-compose.yml up --build
 
 - API: http://localhost:8080/swagger
 - Health: http://localhost:8080/health
+- Web app: http://localhost:8081
+
+### Run the Flutter app locally against a running API
+
+```bash
+cd app
+flutter config --enable-web
+flutter pub get
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+```
 
 ### Run the API locally against dockerized Postgres/Redis
 
@@ -80,10 +96,18 @@ dotnet test WatchLog.slnx
 Integration tests spin up real Postgres/Redis containers via Testcontainers automatically — no
 manual setup needed, just a running Docker daemon.
 
-### Publish the Kubernetes image
+```bash
+cd app
+flutter analyze
+flutter test
+```
 
-Pushes to `main` (or a manual run of `.github/workflows/backend-ci.yml` on `main`) build, test, and
-publish the backend image to `ghcr.io/jafarmahdi/tv-project-api`.
+### Publish the Kubernetes images
+
+Pushes to `main` (or a manual workflow run) build, test, and publish both images:
+
+- `.github/workflows/backend-ci.yml` → `ghcr.io/jafarmahdi/tv-project-api`
+- `.github/workflows/frontend-ci.yml` → `ghcr.io/jafarmahdi/tv-project-web`
 
 See [`infra/k8s/README.md`](infra/k8s/README.md) for the cluster apply order, runtime secrets, and
 the optional GHCR pull secret when the package is private.
@@ -112,8 +136,19 @@ dotnet ef migrations add <Name> --project src/WatchLog.Infrastructure --startup-
 - **AI Assistant** (`IAiAssistantService`) is a genuine heuristic today (see feature list above),
   built behind an interface specifically so a real LLM-backed implementation is a drop-in swap later
   — see `docs/ROADMAP.md` phase 5.
+- **Flutter app** mirrors the backend's layering: `core/network` has one small API class per
+  backend controller group (`CatalogApi`, `TrackingApi`, ...) all sharing one `Dio` instance whose
+  interceptor attaches the JWT and transparently refreshes+retries once on a 401; `core/models` are
+  hand-written Dart classes mirroring the API's DTOs field-for-field (documented in each file); state
+  is Riverpod (`Notifier`/`AsyncNotifier`/`FutureProvider`, no code generation); routing is
+  `go_router`'s `StatefulShellRoute` for the bottom-nav tabs plus a session-aware `redirect` that
+  bounces between the auth flow and the app shell as `authProvider` changes.
+- **Localization** is a hand-maintained `AppStrings` class (not generated `.arb`/`gen-l10n`) covering
+  the app's chrome (nav, auth, settings, common actions) in `en`/`ar`, with automatic RTL — deep
+  content (movie/series data) comes from TMDB in English today since the backend doesn't yet forward
+  a `language` param; see `docs/ROADMAP.md`.
 
 ## Roadmap
 
-See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the Flutter app, React admin dashboard, CI/CD +
-Kubernetes hardening, and real-AI phases that come next.
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the React admin dashboard, native mobile/desktop
+Flutter targets, CI/CD + Kubernetes hardening, and real-AI phases that come next.
