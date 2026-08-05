@@ -40,19 +40,28 @@ kubectl create secret docker-registry ghcr-creds -n watchlog \
   --docker-password='<github-pat>'
 ```
 
-## Apply order
+## Bootstrap once, then deploy
 
 ```bash
-kubectl apply -f infra/k8s/namespace.yaml
-kubectl apply -f infra/k8s/api-configmap.yaml
-kubectl apply -f infra/k8s/api-deployment.yaml
-kubectl apply -f infra/k8s/api-ingress.yaml
-kubectl apply -f infra/k8s/web-deployment.yaml
-kubectl apply -f infra/k8s/web-ingress.yaml
+kubectl apply -f infra/bootstrap/watchlog-namespace.yaml
+```
+
+Then use the namespace-scoped app manifests:
+
+```bash
+kubectl apply -f infra/k8s
 ```
 
 If you manage the app secret as YAML instead of creating it out-of-band, apply that before
 `api-deployment.yaml`.
+
+`infra/k8s/` intentionally excludes the namespace manifest so a restricted deployer that only has
+permissions inside `watchlog` can re-apply the app without hitting a forbidden `patch namespaces`
+error.
+
+If you're deploying right after a push to `main`, wait for both GitHub Actions workflows to publish
+their fresh `:latest` images first; otherwise the pods can briefly show `ImagePullBackOff` until
+GHCR finishes publishing.
 
 ## Ingress hosts
 

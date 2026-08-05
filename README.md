@@ -110,7 +110,8 @@ Pushes to `main` (or a manual workflow run) build, test, and publish both images
 - `.github/workflows/frontend-ci.yml` → `ghcr.io/jafarmahdi/tv-project-web`
 
 See [`infra/k8s/README.md`](infra/k8s/README.md) for the cluster apply order, runtime secrets, and
-the optional GHCR pull secret when the package is private.
+the optional GHCR pull secret when the package is private. The namespace bootstrap manifest lives at
+`infra/bootstrap/watchlog-namespace.yaml`; the day-to-day deploy path is `kubectl apply -f infra/k8s`.
 
 ### Adding a new migration after model changes
 
