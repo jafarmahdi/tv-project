@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using WatchLog.Api.Middleware;
 using WatchLog.Api.Realtime;
 using WatchLog.Api.Security;
@@ -32,8 +34,6 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
 
 // ---- Auth: JWT bearer (primary API auth) + external OAuth providers (Google/Microsoft/Apple/Facebook) ----
-var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
-
 var authBuilder = builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -41,35 +41,45 @@ var authBuilder = builder.Services.AddAuthentication(options =>
     options.DefaultSignInScheme = "External";
 });
 
-authBuilder.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidIssuer = jwt.Issuer,
-        ValidateAudience = true,
-        ValidAudience = jwt.Audience,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-            string.IsNullOrWhiteSpace(jwt.SigningKey) ? "development-only-signing-key-change-me-32-chars-min" : jwt.SigningKey)),
-        ClockSkew = TimeSpan.FromSeconds(30)
-    };
+// Registered with no inline options: `TokenValidationParameters` is filled in below via
+// `AddOptions<JwtBearerOptions>().Configure<IOptions<JwtOptions>>(...)`, which resolves
+// `IOptions<JwtOptions>` from DI *lazily* (the same path `TokenService` uses to issue tokens).
+// Reading `builder.Configuration` directly here — before `builder.Build()` — would race any
+// configuration source added later in the pipeline (e.g. `WebApplicationFactory`'s test overrides,
+// or a reloadable secrets provider), silently validating tokens against a stale/wrong key.
+authBuilder.AddJwtBearer();
 
-    // SignalR sends the JWT via a query string param (browsers can't set ws headers), not the Authorization header.
-    options.Events = new JwtBearerEvents
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((bearerOptions, jwtOptions) =>
     {
-        OnMessageReceived = context =>
+        var jwt = jwtOptions.Value;
+        bearerOptions.TokenValidationParameters = new TokenValidationParameters
         {
-            var accessToken = context.Request.Query["access_token"];
-            if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                string.IsNullOrWhiteSpace(jwt.SigningKey) ? "development-only-signing-key-change-me-32-chars-min" : jwt.SigningKey)),
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+
+        // SignalR sends the JWT via a query string param (browsers can't set ws headers), not the Authorization header.
+        bearerOptions.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
             {
-                context.Token = accessToken;
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
             }
-            return Task.CompletedTask;
-        }
-    };
-});
+        };
+    });
 
 // Temporary cookie used only to complete the external-provider OAuth handshake before we issue our own JWT.
 authBuilder.AddCookie("External");
@@ -168,9 +178,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // ---- Health checks ----
+// Connection strings are resolved lazily from DI-provided `IConfiguration` at check time (same
+// reasoning as the JWT options above) rather than read once from `builder.Configuration` here.
 builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("Default") ?? "Host=localhost;Database=watchlog;Username=watchlog;Password=watchlog")
-    .AddRedis(builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379");
+    .AddNpgSql(sp => sp.GetRequiredService<IConfiguration>().GetConnectionString("Default")
+        ?? "Host=localhost;Database=watchlog;Username=watchlog;Password=watchlog")
+    .AddRedis(sp => sp.GetRequiredService<IConnectionMultiplexer>());
 
 // ---- CORS (Flutter web + admin dashboard dev servers) ----
 builder.Services.AddCors(options =>
