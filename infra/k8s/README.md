@@ -13,9 +13,14 @@ Push to `main` (or run the workflow manually):
 
 - `.github/workflows/backend-ci.yml` builds, tests, and publishes `tv-project-api`.
 - `.github/workflows/frontend-ci.yml` builds, tests (`flutter analyze` + `flutter test`), and
-  publishes `tv-project-web`. It bakes in `API_BASE_URL=https://api.watchlog.lab` at build time
-  (Flutter web config is compiled in, not read from env at runtime) — change the `build-args` in
-  that workflow if your API's real hostname differs.
+  publishes `tv-project-web`. It bakes in an `API_BASE_URL` **at build time** (Flutter web config is
+  compiled in, not read from env at runtime) — defaults to `https://api.watchlog.lab:30453`, the
+  `nginx` ingress controller's actual NodePort on the reference lab cluster (ingress-nginx here
+  isn't on standard 80/443, it's exposed via NodePort — `kubectl get svc -n ingress-nginx` to find
+  yours). Override without editing the workflow by setting a repo/org Actions **variable** named
+  `WATCHLOG_API_BASE_URL` (Settings → Secrets and variables → Actions → Variables) to your real
+  API origin — useful the moment this gets a real domain + standard ports, or if the NodePort
+  changes.
 
 Both tag `:latest` and `:sha-<commit>` on every push to `main`.
 

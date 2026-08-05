@@ -35,15 +35,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authProvider);
       final location = state.matchedLocation;
-      const authRoutes = {'/login', '/register', '/splash'};
 
       if (auth.status == AuthStatus.unknown) {
+        // Still resolving the initial session check — hold on splash, don't bounce anywhere yet.
         return location == '/splash' ? null : '/splash';
       }
-      if (!auth.isAuthenticated && !authRoutes.contains(location)) {
-        return '/login';
+
+      const publicAuthRoutes = {'/login', '/register'};
+      if (!auth.isAuthenticated) {
+        // Resolved as signed-out: `/splash` is not a real destination, so it must redirect too —
+        // only `/login`/`/register` are legitimately reachable while signed out.
+        return publicAuthRoutes.contains(location) ? null : '/login';
       }
-      if (auth.isAuthenticated && authRoutes.contains(location)) {
+
+      // Signed in: keep them off splash/login/register.
+      if (location == '/splash' || publicAuthRoutes.contains(location)) {
         return '/home';
       }
       return null;
