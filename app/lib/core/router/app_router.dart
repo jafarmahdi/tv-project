@@ -22,7 +22,7 @@ import '../../features/stats/stats_screen.dart';
 /// re-run its redirect logic whenever the session changes (login/logout).
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
-    ref.listen(authProvider, (_, __) => notifyListeners());
+    ref.listen(authProvider, (_, _) => notifyListeners());
   }
 }
 

@@ -22,10 +22,12 @@ class ListsApi {
 
   Future<void> deleteList(String listId) => _client.guard(() => _client.dio.delete('/api/v1/lists/$listId'));
 
-  Future<void> addItem(String listId, {int? movieTmdbId, int? seriesTmdbId}) => _client.guard(() => _client.dio.post(
-        '/api/v1/lists/$listId/items',
-        data: {if (movieTmdbId != null) 'movieTmdbId': movieTmdbId, if (seriesTmdbId != null) 'seriesTmdbId': seriesTmdbId},
-      ));
+  Future<void> addItem(String listId, {int? movieTmdbId, int? seriesTmdbId}) => _client.guard(() {
+        final data = <String, dynamic>{};
+        if (movieTmdbId != null) data['movieTmdbId'] = movieTmdbId;
+        if (seriesTmdbId != null) data['seriesTmdbId'] = seriesTmdbId;
+        return _client.dio.post('/api/v1/lists/$listId/items', data: data);
+      });
 
   Future<void> removeItem(String listId, String itemId) =>
       _client.guard(() => _client.dio.delete('/api/v1/lists/$listId/items/$itemId'));

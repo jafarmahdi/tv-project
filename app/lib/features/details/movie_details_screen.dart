@@ -157,7 +157,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: movie.cast.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final member = movie.cast[index];
                       return SizedBox(
@@ -193,7 +193,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: result.items.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        separatorBuilder: (_, _) => const SizedBox(width: 12),
                         itemBuilder: (context, index) {
                           final m = result.items[index];
                           return PosterCard(

@@ -19,14 +19,14 @@ class UsersApi {
     bool? isPrivate,
   }) =>
       _client.guard(() async {
-        final response = await _client.dio.put('/api/v1/users/me', data: {
-          if (displayName != null) 'displayName': displayName,
-          if (avatarUrl != null) 'avatarUrl': avatarUrl,
-          if (bio != null) 'bio': bio,
-          if (locale != null) 'locale': locale,
-          if (themePreference != null) 'themePreference': themePreference,
-          if (isPrivate != null) 'isPrivate': isPrivate,
-        });
+        final data = <String, dynamic>{};
+        if (displayName != null) data['displayName'] = displayName;
+        if (avatarUrl != null) data['avatarUrl'] = avatarUrl;
+        if (bio != null) data['bio'] = bio;
+        if (locale != null) data['locale'] = locale;
+        if (themePreference != null) data['themePreference'] = themePreference;
+        if (isPrivate != null) data['isPrivate'] = isPrivate;
+        final response = await _client.dio.put('/api/v1/users/me', data: data);
         return MeProfile.fromJson(response.data as Map<String, dynamic>);
       });
 

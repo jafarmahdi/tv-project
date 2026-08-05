@@ -48,7 +48,7 @@ class PosterCard extends StatelessWidget {
                       Image.network(
                         posterUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _placeholder(scheme),
+                        errorBuilder: (_, _, _) => _placeholder(scheme),
                         loadingBuilder: (context, child, progress) =>
                             progress == null ? child : _placeholder(scheme),
                       )
