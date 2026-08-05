@@ -19,7 +19,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.12.2
+  # Kept broad (not pinned to the exact Dart patch this project happened to be created with) so it
+  # doesn't drift out of sync with whatever Dart version the `cirruslabs/flutter:stable` Docker
+  # image bundles at build time — see app/Dockerfile.
+  sdk: ^3.9.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
