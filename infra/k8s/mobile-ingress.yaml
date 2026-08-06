@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: watchlog-mobile
+  namespace: watchlog
+  annotations:
+    # Plain HTTP, no redirect: this ingress has no TLS block and no `host`, so it becomes
+    # ingress-nginx's catch-all for any request whose Host header doesn't match
+    # watchlog.lab/api.watchlog.lab (e.g. a phone hitting the NodePort by bare LAN IP,
+    # which can't resolve those private hostnames or trust the internal CA). Without
+    # ssl-redirect: false, ingress-nginx would 308 those requests to HTTPS anyway.
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: watchlog-web
+                port:
+                  number: 80

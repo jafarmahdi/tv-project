@@ -78,7 +78,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Relative by default: nginx.conf proxies /api and /hubs to the backend Service
+          # internally, so the app calls whatever origin loaded the page (hostname or bare
+          # IP, HTTP or HTTPS) instead of a hardcoded host. Override via the
+          # WATCHLOG_API_BASE_URL repo variable only if you need an absolute URL again.
           build-args: |
-            API_BASE_URL=${{ vars.WATCHLOG_API_BASE_URL || 'https://api.watchlog.lab:30453' }}
+            API_BASE_URL=${{ vars.WATCHLOG_API_BASE_URL || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
