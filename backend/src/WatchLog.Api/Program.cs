@@ -16,6 +16,7 @@ using WatchLog.Api.Security;
 using WatchLog.Application;
 using WatchLog.Application.Common.Interfaces;
 using WatchLog.Infrastructure;
+using WatchLog.Infrastructure.Identity;
 using WatchLog.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -213,6 +214,10 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificationsHub>("/hubs/notifications");
 app.MapHealthChecks("/health");
+
+// Config-driven: if Admin:InitialAdminEmail is set and that account exists, ensure it's an Admin.
+// No-op otherwise — never a hardcoded account in source.
+await IdentitySeeder.EnsureInitialAdminAsync(app.Services, app.Configuration);
 
 app.Run();
 

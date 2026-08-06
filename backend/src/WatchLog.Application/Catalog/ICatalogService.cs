@@ -13,6 +13,8 @@ public interface ICatalogService
     Task<PagedResult<SeriesSummaryDto>> SearchSeriesAsync(string query, int page, CancellationToken ct = default);
     Task<PagedResult<MovieSummaryDto>> GetTrendingMoviesAsync(int page, CancellationToken ct = default);
     Task<PagedResult<SeriesSummaryDto>> GetTrendingSeriesAsync(int page, CancellationToken ct = default);
+    Task<PagedResult<MovieSummaryDto>> DiscoverMoviesByYearAsync(int year, int page, CancellationToken ct = default);
+    Task<PagedResult<SeriesSummaryDto>> DiscoverSeriesByYearAsync(int year, int page, CancellationToken ct = default);
     Task<MovieDetailDto> GetMovieDetailAsync(int tmdbId, CancellationToken ct = default);
     Task<SeriesDetailDto> GetSeriesDetailAsync(int tmdbId, CancellationToken ct = default);
     Task<SeasonDetailDto> GetSeasonAsync(int seriesTmdbId, int seasonNumber, CancellationToken ct = default);

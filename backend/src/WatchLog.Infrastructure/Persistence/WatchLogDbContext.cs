@@ -58,5 +58,9 @@ public class WatchLogDbContext(DbContextOptions<WatchLogDbContext> options)
         builder.Entity<IdentityUserLogin<Guid>>().ToTable("user_logins");
         builder.Entity<IdentityRoleClaim<Guid>>().ToTable("role_claims");
         builder.Entity<IdentityUserToken<Guid>>().ToTable("user_tokens");
+
+        // The built-in "Admin" role always exists; which user holds it is assigned at runtime
+        // (see IdentitySeeder.EnsureInitialAdminAsync), never hardcoded here.
+        builder.Entity<ApplicationRole>().HasData(SeedData.Roles);
     }
 }

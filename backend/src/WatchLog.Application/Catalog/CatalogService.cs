@@ -39,6 +39,20 @@ public class CatalogService(ITmdbClient tmdb, ICacheService cache, IUnitOfWork u
         return await ToPagedAsync(result, MapSeriesSummaryAsync, ct);
     }
 
+    public async Task<PagedResult<MovieSummaryDto>> DiscoverMoviesByYearAsync(int year, int page, CancellationToken ct = default)
+    {
+        var result = await cache.GetOrCreateAsync($"tmdb:discover:movie:{year}:{page}", ListTtl,
+            () => tmdb.DiscoverMoviesByYearAsync(year, page, ct), ct);
+        return await ToPagedAsync(result, MapMovieSummaryAsync, ct);
+    }
+
+    public async Task<PagedResult<SeriesSummaryDto>> DiscoverSeriesByYearAsync(int year, int page, CancellationToken ct = default)
+    {
+        var result = await cache.GetOrCreateAsync($"tmdb:discover:series:{year}:{page}", ListTtl,
+            () => tmdb.DiscoverSeriesByYearAsync(year, page, ct), ct);
+        return await ToPagedAsync(result, MapSeriesSummaryAsync, ct);
+    }
+
     public async Task<MovieDetailDto> GetMovieDetailAsync(int tmdbId, CancellationToken ct = default)
     {
         var detail = await cache.GetOrCreateAsync($"tmdb:movie:{tmdbId}", DetailCacheStaleAfter,

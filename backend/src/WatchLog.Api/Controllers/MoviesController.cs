@@ -18,6 +18,12 @@ public class MoviesController(ICatalogService catalog, ICurrentUserService curre
         [FromQuery] int page = 1, CancellationToken ct = default) =>
         Ok(await catalog.GetTrendingMoviesAsync(page, ct));
 
+    /// <summary>Movies released in <paramref name="year"/> (defaults to the current year), sorted by popularity.</summary>
+    [HttpGet("discover")]
+    public async Task<ActionResult<Application.Common.Models.PagedResult<MovieSummaryDto>>> Discover(
+        [FromQuery] int? year = null, [FromQuery] int page = 1, CancellationToken ct = default) =>
+        Ok(await catalog.DiscoverMoviesByYearAsync(year ?? DateTime.UtcNow.Year, page, ct));
+
     [HttpGet("{tmdbId:int}")]
     public async Task<ActionResult<MovieDetailDto>> GetDetail(int tmdbId, CancellationToken ct) =>
         Ok(await catalog.GetMovieDetailAsync(tmdbId, ct));

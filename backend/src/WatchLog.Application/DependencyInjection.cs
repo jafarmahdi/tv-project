@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using WatchLog.Application.Achievements;
+using WatchLog.Application.Admin;
 using WatchLog.Application.Ai;
 using WatchLog.Application.Auth;
 using WatchLog.Application.Catalog;
@@ -36,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IAchievementService, AchievementService>();
         services.AddScoped<IDeviceService, DeviceService>();
         services.AddScoped<IRatingService, RatingService>();
+        services.AddScoped<IAdminImportService, AdminImportService>();
 
         return services;
     }

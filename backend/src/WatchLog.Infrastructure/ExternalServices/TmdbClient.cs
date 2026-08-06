@@ -26,6 +26,14 @@ public class TmdbClient(HttpClient httpClient, IOptions<TmdbOptions> options) : 
     public Task<TmdbPagedResult<TmdbSeriesSummary>> GetTrendingSeriesAsync(int page, CancellationToken ct = default) =>
         GetPagedAsync<TmdbWireSeriesSummary, TmdbSeriesSummary>($"/trending/tv/week?page={page}", MapSeriesSummary, ct);
 
+    public Task<TmdbPagedResult<TmdbMovieSummary>> DiscoverMoviesByYearAsync(int year, int page, CancellationToken ct = default) =>
+        GetPagedAsync<TmdbWireMovieSummary, TmdbMovieSummary>(
+            $"/discover/movie?primary_release_year={year}&sort_by=popularity.desc&page={page}", MapMovieSummary, ct);
+
+    public Task<TmdbPagedResult<TmdbSeriesSummary>> DiscoverSeriesByYearAsync(int year, int page, CancellationToken ct = default) =>
+        GetPagedAsync<TmdbWireSeriesSummary, TmdbSeriesSummary>(
+            $"/discover/tv?first_air_date_year={year}&sort_by=popularity.desc&page={page}", MapSeriesSummary, ct);
+
     public Task<TmdbPagedResult<TmdbMovieSummary>> GetSimilarMoviesAsync(int tmdbId, CancellationToken ct = default) =>
         GetPagedAsync<TmdbWireMovieSummary, TmdbMovieSummary>($"/movie/{tmdbId}/similar", MapMovieSummary, ct);
 

@@ -19,6 +19,12 @@ public class SeriesController(ICatalogService catalog, ICurrentUserService curre
         [FromQuery] int page = 1, CancellationToken ct = default) =>
         Ok(await catalog.GetTrendingSeriesAsync(page, ct));
 
+    /// <summary>Series that first aired in <paramref name="year"/> (defaults to the current year), sorted by popularity.</summary>
+    [HttpGet("discover")]
+    public async Task<ActionResult<Application.Common.Models.PagedResult<SeriesSummaryDto>>> Discover(
+        [FromQuery] int? year = null, [FromQuery] int page = 1, CancellationToken ct = default) =>
+        Ok(await catalog.DiscoverSeriesByYearAsync(year ?? DateTime.UtcNow.Year, page, ct));
+
     [HttpGet("{tmdbId:int}")]
     public async Task<ActionResult<SeriesDetailDto>> GetDetail(int tmdbId, CancellationToken ct) =>
         Ok(await catalog.GetSeriesDetailAsync(tmdbId, ct));

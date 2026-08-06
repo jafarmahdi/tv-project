@@ -1,4 +1,5 @@
 using WatchLog.Domain.Entities;
+using WatchLog.Infrastructure.Identity;
 
 namespace WatchLog.Infrastructure.Persistence;
 
@@ -12,6 +13,16 @@ internal static class SeedData
     private static Guid GenreId(int tmdbId) => new($"00000000-0000-4000-8000-{tmdbId:D12}");
     private static Guid AchievementId(int index) => new($"10000000-0000-4000-8000-{index:D12}");
     private static readonly DateTimeOffset SeededAt = new(2026, 8, 5, 0, 0, 0, TimeSpan.Zero);
+
+    /// <summary>
+    /// The one built-in role. Which user actually holds it is config-driven at runtime
+    /// (see `IdentitySeeder.EnsureInitialAdminAsync`) — never hardcode a specific person's
+    /// account into seed data.
+    /// </summary>
+    public static readonly ApplicationRole[] Roles =
+    [
+        new() { Id = new Guid("20000000-0000-4000-8000-000000000001"), Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "20000000-0000-4000-8000-000000000001" }
+    ];
 
     /// <summary>TMDB's official movie + TV genre lists (stable, public reference data — themoviedb.org/genre).</summary>
     public static readonly Genre[] Genres =

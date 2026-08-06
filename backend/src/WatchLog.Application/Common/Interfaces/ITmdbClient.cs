@@ -12,6 +12,12 @@ public interface ITmdbClient
     Task<TmdbPagedResult<TmdbSeriesSummary>> SearchSeriesAsync(string query, int page, CancellationToken ct = default);
     Task<TmdbPagedResult<TmdbMovieSummary>> GetTrendingMoviesAsync(int page, CancellationToken ct = default);
     Task<TmdbPagedResult<TmdbSeriesSummary>> GetTrendingSeriesAsync(int page, CancellationToken ct = default);
+
+    /// <summary>Movies whose primary release date falls in <paramref name="year"/>, sorted by popularity.</summary>
+    Task<TmdbPagedResult<TmdbMovieSummary>> DiscoverMoviesByYearAsync(int year, int page, CancellationToken ct = default);
+
+    /// <summary>Series whose first-air-date falls in <paramref name="year"/>, sorted by popularity.</summary>
+    Task<TmdbPagedResult<TmdbSeriesSummary>> DiscoverSeriesByYearAsync(int year, int page, CancellationToken ct = default);
     Task<TmdbMovieDetail?> GetMovieDetailAsync(int tmdbId, CancellationToken ct = default);
     Task<TmdbSeriesDetail?> GetSeriesDetailAsync(int tmdbId, CancellationToken ct = default);
     Task<TmdbSeasonDetail?> GetSeasonDetailAsync(int seriesTmdbId, int seasonNumber, CancellationToken ct = default);
