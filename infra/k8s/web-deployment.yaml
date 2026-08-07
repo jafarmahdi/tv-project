@@ -23,6 +23,9 @@ spec:
           image: ghcr.io/jafarmahdi/tv-project-web:latest # built from app/Dockerfile, same publish flow as the API image
           ports:
             - containerPort: 80
+          env:
+            - name: WATCHLOG_DNS_RESOLVER
+              value: "10.96.0.10"
           readinessProbe:
             httpGet:
               path: /
