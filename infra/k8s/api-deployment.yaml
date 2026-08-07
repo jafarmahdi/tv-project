@@ -32,14 +32,22 @@ spec:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 20
+            failureThreshold: 6
           livenessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          startupProbe:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 20
+            failureThreshold: 18
           resources:
             requests:
               cpu: "250m"

@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+WATCHLOG_DNS_RESOLVER="${WATCHLOG_DNS_RESOLVER:-$(awk '/^nameserver[[:space:]]+/ { print $2; exit }' /etc/resolv.conf)}"
+
+if [ -z "$WATCHLOG_DNS_RESOLVER" ]; then
+    echo "watchlog: unable to detect a DNS resolver from /etc/resolv.conf" >&2
+    exit 1
+fi
+
+export WATCHLOG_DNS_RESOLVER

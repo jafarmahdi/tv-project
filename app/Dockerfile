@@ -21,8 +21,11 @@ RUN flutter build web --release --wasm --dart-define=API_BASE_URL=${API_BASE_URL
 
 ## ---- Runtime stage ----
 FROM nginx:1.27-alpine AS runtime
+ENV NGINX_ENVSUBST_FILTER=WATCHLOG_DNS_RESOLVER
 COPY --from=build /app/build/web /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+COPY docker-entrypoint.d/15-watchlog-dns-resolver.sh /docker-entrypoint.d/15-watchlog-dns-resolver.sh
+RUN chmod +x /docker-entrypoint.d/15-watchlog-dns-resolver.sh
 
 EXPOSE 80
 
