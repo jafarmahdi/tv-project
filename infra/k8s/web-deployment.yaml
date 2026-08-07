@@ -32,12 +32,21 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
           livenessProbe:
+            tcpSocket:
+              port: 80
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          startupProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 10
-            periodSeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
           resources:
             requests:
               cpu: "100m"
