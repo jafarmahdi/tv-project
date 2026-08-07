@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace WatchLog.Infrastructure.Identity;
 
@@ -19,14 +20,26 @@ public static class IdentitySeeder
         if (string.IsNullOrWhiteSpace(initialAdminEmail)) return;
 
         using var scope = services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(IdentitySeeder).FullName!);
 
-        var user = await userManager.FindByEmailAsync(initialAdminEmail);
-        if (user is null) return;
-
-        if (!await userManager.IsInRoleAsync(user, "Admin"))
+        try
         {
-            await userManager.AddToRoleAsync(user, "Admin");
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var user = await userManager.FindByEmailAsync(initialAdminEmail);
+            if (user is null) return;
+
+            if (!await userManager.IsInRoleAsync(user, "Admin"))
+            {
+                await userManager.AddToRoleAsync(user, "Admin");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Best-effort: a DB hiccup at startup (e.g. Postgres not reachable yet) must never
+            // take the whole API down for what's just a convenience bootstrap step. It simply
+            // retries on the next pod start/restart.
+            logger.LogWarning(ex, "Skipping initial-admin bootstrap: database wasn't reachable at startup.");
         }
     }
 }
