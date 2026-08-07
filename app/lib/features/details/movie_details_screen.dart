@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -78,7 +79,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                   fit: StackFit.expand,
                   children: [
                     if (movie.backdropPath != null)
-                      Image.network(TmdbImages.backdrop(movie.backdropPath)!, fit: BoxFit.cover)
+                      CachedNetworkImage(imageUrl: TmdbImages.backdrop(movie.backdropPath)!, fit: BoxFit.cover)
                     else
                       Container(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                     DecoratedBox(decoration: BoxDecoration(gradient: AppTheme.heroScrim(Theme.of(context).colorScheme))),

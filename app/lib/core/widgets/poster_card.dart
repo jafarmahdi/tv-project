@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
@@ -45,12 +46,12 @@ class PosterCard extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     if (posterUrl != null)
-                      Image.network(
-                        posterUrl!,
+                      CachedNetworkImage(
+                        imageUrl: posterUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => _placeholder(scheme),
-                        loadingBuilder: (context, child, progress) =>
-                            progress == null ? child : _placeholder(scheme),
+                        fadeInDuration: Duration.zero,
+                        errorWidget: (_, _, _) => _placeholder(scheme),
+                        placeholder: (_, _) => _placeholder(scheme),
                       )
                     else
                       _placeholder(scheme),

@@ -14,7 +14,10 @@ COPY . .
 
 # Override at build time: docker build --build-arg API_BASE_URL=https://api.watchlog.example.com
 ARG API_BASE_URL=http://localhost:8080
-RUN flutter build web --release --dart-define=API_BASE_URL=${API_BASE_URL}
+# --wasm: compiles to WebAssembly instead of JS, with an automatic JS fallback baked into the
+# same output for browsers that don't support it — faster startup/execution on modern browsers,
+# no downside on older ones.
+RUN flutter build web --release --wasm --dart-define=API_BASE_URL=${API_BASE_URL}
 
 ## ---- Runtime stage ----
 FROM nginx:1.27-alpine AS runtime

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -127,7 +128,7 @@ class _EpisodeTileState extends ConsumerState<_EpisodeTile> {
               width: 110,
               height: 62,
               child: summary.stillPath != null
-                  ? Image.network(TmdbImages.still(summary.stillPath)!, fit: BoxFit.cover)
+                  ? CachedNetworkImage(imageUrl: TmdbImages.still(summary.stillPath)!, fit: BoxFit.cover)
                   : Container(color: scheme.surfaceContainerHigh, child: const Icon(Icons.tv)),
             ),
           ),

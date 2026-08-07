@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -189,7 +190,7 @@ class _SuggestionCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 child: suggestion.posterPath != null
-                    ? Image.network(TmdbImages.poster(suggestion.posterPath)!, fit: BoxFit.cover)
+                    ? CachedNetworkImage(imageUrl: TmdbImages.poster(suggestion.posterPath)!, fit: BoxFit.cover)
                     : Container(color: Theme.of(context).colorScheme.surfaceContainerHigh, child: const Icon(Icons.movie_outlined)),
               ),
             ),

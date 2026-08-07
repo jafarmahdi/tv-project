@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +37,7 @@ class SeriesDetailsScreen extends ConsumerWidget {
                   fit: StackFit.expand,
                   children: [
                     if (series.backdropPath != null)
-                      Image.network(TmdbImages.backdrop(series.backdropPath)!, fit: BoxFit.cover)
+                      CachedNetworkImage(imageUrl: TmdbImages.backdrop(series.backdropPath)!, fit: BoxFit.cover)
                     else
                       Container(color: Theme.of(context).colorScheme.surfaceContainerHigh),
                     DecoratedBox(decoration: BoxDecoration(gradient: AppTheme.heroScrim(Theme.of(context).colorScheme))),
@@ -113,7 +114,7 @@ class SeriesDetailsScreen extends ConsumerWidget {
                             child: season.posterPath != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(6),
-                                    child: Image.network(TmdbImages.poster(season.posterPath, size: 'w92')!, fit: BoxFit.cover),
+                                    child: CachedNetworkImage(imageUrl: TmdbImages.poster(season.posterPath, size: 'w92')!, fit: BoxFit.cover),
                                   )
                                 : const Icon(Icons.image_not_supported_outlined),
                           ),

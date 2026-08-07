@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -108,7 +109,11 @@ class _ListExpansion extends ConsumerWidget {
                             leading: item.posterPath != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(6),
-                                    child: Image.network(TmdbImages.poster(item.posterPath, size: 'w92')!, width: 40, fit: BoxFit.cover),
+                                    child: CachedNetworkImage(
+                                      imageUrl: TmdbImages.poster(item.posterPath, size: 'w92')!,
+                                      width: 40,
+                                      fit: BoxFit.cover,
+                                    ),
                                   )
                                 : const Icon(Icons.image_not_supported_outlined),
                             title: Text(item.title),
