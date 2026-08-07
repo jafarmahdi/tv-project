@@ -10,6 +10,18 @@ namespace WatchLog.Api.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController(IAdminImportService importService, ICurrentUserService currentUser) : ApiControllerBase(currentUser)
 {
+    [HttpPost("import/movie/{tmdbId:int}")]
+    public async Task<ActionResult<ImportedCatalogItemDto>> ImportMovieByTmdbId(int tmdbId, CancellationToken ct = default) =>
+        Ok(await importService.ImportMovieByTmdbIdAsync(tmdbId, ct));
+
+    [HttpPost("import/series/{tmdbId:int}")]
+    public async Task<ActionResult<ImportedCatalogItemDto>> ImportSeriesByTmdbId(int tmdbId, CancellationToken ct = default) =>
+        Ok(await importService.ImportSeriesByTmdbIdAsync(tmdbId, ct));
+
+    [HttpPost("import/episode")]
+    public async Task<ActionResult<ImportedCatalogItemDto>> ImportEpisode(ImportEpisodeRequest request, CancellationToken ct = default) =>
+        Ok(await importService.ImportEpisodeAsync(request.SeriesTmdbId, request.SeasonNumber, request.EpisodeNumber, ct));
+
     /// <summary>Pulls up to <paramref name="pages"/> pages (20 items/page) of <paramref name="year"/>'s
     /// most popular movies from TMDB into the local catalog. Slow by design (one detail fetch per
     /// movie) — keep <paramref name="pages"/> modest per call.</summary>

@@ -59,9 +59,9 @@ public class CatalogService(ITmdbClient tmdb, ICacheService cache, IUnitOfWork u
             async () => await tmdb.GetMovieDetailAsync(tmdbId, ct)
                 ?? throw new NotFoundException(nameof(Movie), tmdbId), ct);
 
-        await UpsertMovieAsync(detail, ct);
+        var localId = await UpsertMovieAsync(detail, ct);
 
-        return new MovieDetailDto(detail.Id, detail.Title, detail.OriginalTitle, detail.Overview, detail.PosterPath,
+        return new MovieDetailDto(localId, detail.Id, detail.Title, detail.OriginalTitle, detail.Overview, detail.PosterPath,
             detail.BackdropPath, detail.ReleaseDate, detail.Runtime, detail.VoteAverage,
             detail.Genres.Select(g => g.Name).ToList(),
             detail.Cast.Select(c => new CastMemberDto(c.Id, c.Name, c.Character, c.ProfilePath)).ToList(),
@@ -75,9 +75,9 @@ public class CatalogService(ITmdbClient tmdb, ICacheService cache, IUnitOfWork u
             async () => await tmdb.GetSeriesDetailAsync(tmdbId, ct)
                 ?? throw new NotFoundException(nameof(Series), tmdbId), ct);
 
-        await UpsertSeriesAsync(detail, ct);
+        var localId = await UpsertSeriesAsync(detail, ct);
 
-        return new SeriesDetailDto(detail.Id, detail.Name, detail.OriginalName, detail.Overview, detail.PosterPath,
+        return new SeriesDetailDto(localId, detail.Id, detail.Name, detail.OriginalName, detail.Overview, detail.PosterPath,
             detail.BackdropPath, detail.FirstAirDate, detail.LastAirDate, detail.Status, detail.VoteAverage,
             detail.Genres.Select(g => g.Name).ToList(),
             detail.Cast.Select(c => new CastMemberDto(c.Id, c.Name, c.Character, c.ProfilePath)).ToList(),
@@ -92,8 +92,14 @@ public class CatalogService(ITmdbClient tmdb, ICacheService cache, IUnitOfWork u
             async () => await tmdb.GetSeasonDetailAsync(seriesTmdbId, seasonNumber, ct)
                 ?? throw new NotFoundException(nameof(Season), $"{seriesTmdbId}/{seasonNumber}"), ct);
 
-        return new SeasonDetailDto(detail.SeasonNumber, detail.Name, detail.Overview, detail.PosterPath, detail.AirDate,
-            detail.Episodes.Select(e => new EpisodeSummaryDto(e.EpisodeNumber, e.Name, e.Overview, e.StillPath, e.AirDate, e.Runtime)).ToList());
+        var seriesId = await EnsureSeriesCachedAsync(seriesTmdbId, ct);
+        var season = await UpsertSeasonAsync(seriesId, detail, ct);
+
+        return new SeasonDetailDto(season.SeasonNumber, season.Name, season.Overview, season.PosterPath, season.AirDate,
+            season.Episodes
+                .OrderBy(e => e.EpisodeNumber)
+                .Select(e => new EpisodeSummaryDto(e.Id, e.EpisodeNumber, e.Title, e.Overview, e.StillPath, e.AirDate, e.RuntimeMinutes))
+                .ToList());
     }
 
     public async Task<PagedResult<MovieSummaryDto>> GetSimilarMoviesAsync(int tmdbId, CancellationToken ct = default)
@@ -266,6 +272,60 @@ public class CatalogService(ITmdbClient tmdb, ICacheService cache, IUnitOfWork u
         await unitOfWork.SaveChangesAsync(ct);
 
         return series.Id;
+    }
+
+    private async Task<Season> UpsertSeasonAsync(Guid seriesId, TmdbSeasonDetail detail, CancellationToken ct)
+    {
+        var seasonRepo = unitOfWork.Repository<Season>();
+        var season = await seasonRepo.Query()
+            .Include(s => s.Episodes)
+            .FirstOrDefaultAsync(s => s.SeriesId == seriesId && s.SeasonNumber == detail.SeasonNumber, ct);
+
+        var isNew = season is null;
+        season ??= new Season
+        {
+            SeriesId = seriesId,
+            SeasonNumber = detail.SeasonNumber
+        };
+
+        season.Name = detail.Name;
+        season.Overview = detail.Overview;
+        season.PosterPath = detail.PosterPath;
+        season.AirDate = detail.AirDate;
+
+        if (isNew) await seasonRepo.AddAsync(season, ct);
+        else seasonRepo.Update(season);
+
+        var episodeRepo = unitOfWork.Repository<Episode>();
+        foreach (var tmdbEpisode in detail.Episodes)
+        {
+            var episode = season.Episodes.FirstOrDefault(e => e.EpisodeNumber == tmdbEpisode.EpisodeNumber);
+            var episodeIsNew = episode is null;
+            if (episode is null)
+            {
+                episode = new Episode
+                {
+                    SeasonId = season.Id,
+                    EpisodeNumber = tmdbEpisode.EpisodeNumber
+                };
+                await episodeRepo.AddAsync(episode, ct);
+                season.Episodes.Add(episode);
+            }
+
+            episode.Title = tmdbEpisode.Name;
+            episode.Overview = tmdbEpisode.Overview;
+            episode.StillPath = tmdbEpisode.StillPath;
+            episode.AirDate = tmdbEpisode.AirDate;
+            episode.RuntimeMinutes = tmdbEpisode.Runtime;
+
+            if (!episodeIsNew)
+            {
+                episodeRepo.Update(episode);
+            }
+        }
+
+        await unitOfWork.SaveChangesAsync(ct);
+        return season;
     }
 
     private async Task<List<Guid>> EnsureGenresAsync(IReadOnlyList<TmdbGenre> tmdbGenres, CancellationToken ct)

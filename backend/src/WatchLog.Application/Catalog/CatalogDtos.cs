@@ -9,17 +9,17 @@ public record SeriesSummaryDto(int TmdbId, string Title, string? PosterPath, str
 public record CastMemberDto(int TmdbId, string Name, string? Character, string? ProfilePath);
 public record CrewMemberDto(int TmdbId, string Name, string? Job, string? ProfilePath);
 
-public record MovieDetailDto(int TmdbId, string Title, string? OriginalTitle, string? Overview, string? PosterPath,
+public record MovieDetailDto(Guid Id, int TmdbId, string Title, string? OriginalTitle, string? Overview, string? PosterPath,
     string? BackdropPath, DateOnly? ReleaseDate, int? RuntimeMinutes, double VoteAverage,
     IReadOnlyList<string> Genres, IReadOnlyList<CastMemberDto> Cast, IReadOnlyList<CrewMemberDto> Crew,
     string? TrailerYoutubeKey);
 
-public record EpisodeSummaryDto(int EpisodeNumber, string Title, string? Overview, string? StillPath,
+public record EpisodeSummaryDto(Guid Id, int EpisodeNumber, string Title, string? Overview, string? StillPath,
     DateOnly? AirDate, int? RuntimeMinutes);
 
 public record SeasonSummaryDto(int SeasonNumber, string Name, string? PosterPath, DateOnly? AirDate, int EpisodeCount);
 
-public record SeriesDetailDto(int TmdbId, string Title, string? OriginalTitle, string? Overview, string? PosterPath,
+public record SeriesDetailDto(Guid Id, int TmdbId, string Title, string? OriginalTitle, string? Overview, string? PosterPath,
     string? BackdropPath, DateOnly? FirstAirDate, DateOnly? LastAirDate, string Status, double VoteAverage,
     IReadOnlyList<string> Genres, IReadOnlyList<CastMemberDto> Cast, IReadOnlyList<CrewMemberDto> Crew,
     IReadOnlyList<SeasonSummaryDto> Seasons, string? TrailerYoutubeKey);

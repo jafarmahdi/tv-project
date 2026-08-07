@@ -11,6 +11,7 @@ class MeProfile {
   final DateTime createdAt;
   final int followerCount;
   final int followingCount;
+  final bool isAdmin;
 
   MeProfile({
     required this.id,
@@ -24,21 +25,23 @@ class MeProfile {
     required this.createdAt,
     required this.followerCount,
     required this.followingCount,
+    required this.isAdmin,
   });
 
   factory MeProfile.fromJson(Map<String, dynamic> json) => MeProfile(
-        id: json['id'] as String,
-        email: json['email'] as String,
-        displayName: json['displayName'] as String,
-        avatarUrl: json['avatarUrl'] as String?,
-        bio: json['bio'] as String?,
-        locale: json['locale'] as String,
-        themePreference: json['themePreference'] as int,
-        isPrivate: json['isPrivate'] as bool,
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        followerCount: json['followerCount'] as int,
-        followingCount: json['followingCount'] as int,
-      );
+    id: json['id'] as String,
+    email: json['email'] as String,
+    displayName: json['displayName'] as String,
+    avatarUrl: json['avatarUrl'] as String?,
+    bio: json['bio'] as String?,
+    locale: json['locale'] as String,
+    themePreference: json['themePreference'] as int,
+    isPrivate: json['isPrivate'] as bool,
+    createdAt: DateTime.parse(json['createdAt'] as String),
+    followerCount: json['followerCount'] as int,
+    followingCount: json['followingCount'] as int,
+    isAdmin: json['isAdmin'] as bool? ?? false,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Users.UserProfileDto`.
@@ -58,10 +61,10 @@ class PublicProfile {
   });
 
   factory PublicProfile.fromJson(Map<String, dynamic> json) => PublicProfile(
-        id: json['id'] as String,
-        displayName: json['displayName'] as String,
-        avatarUrl: json['avatarUrl'] as String?,
-        bio: json['bio'] as String?,
-        isPrivate: json['isPrivate'] as bool,
-      );
+    id: json['id'] as String,
+    displayName: json['displayName'] as String,
+    avatarUrl: json['avatarUrl'] as String?,
+    bio: json['bio'] as String?,
+    isPrivate: json['isPrivate'] as bool,
+  );
 }

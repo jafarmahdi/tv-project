@@ -6,10 +6,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/tmdb_images.dart';
 import '../../core/localization/app_strings.dart';
+import '../../core/models/engagement_models.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/async_value_view.dart';
 import '../../core/widgets/poster_card.dart';
 import '../../core/widgets/section_header.dart';
+import '../engagement/engagement_section.dart';
 import 'add_to_list_sheet.dart';
 import 'details_providers.dart';
 
@@ -37,10 +39,23 @@ class SeriesDetailsScreen extends ConsumerWidget {
                   fit: StackFit.expand,
                   children: [
                     if (series.backdropPath != null)
-                      CachedNetworkImage(imageUrl: TmdbImages.backdrop(series.backdropPath)!, fit: BoxFit.cover)
+                      CachedNetworkImage(
+                        imageUrl: TmdbImages.backdrop(series.backdropPath)!,
+                        fit: BoxFit.cover,
+                      )
                     else
-                      Container(color: Theme.of(context).colorScheme.surfaceContainerHigh),
-                    DecoratedBox(decoration: BoxDecoration(gradient: AppTheme.heroScrim(Theme.of(context).colorScheme))),
+                      Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHigh,
+                      ),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.heroScrim(
+                          Theme.of(context).colorScheme,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -51,20 +66,36 @@ class SeriesDetailsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(series.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      series.title,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 12,
                       runSpacing: 4,
                       children: [
-                        _MetaChip(icon: Icons.star_rounded, label: series.voteAverage.toStringAsFixed(1)),
+                        _MetaChip(
+                          icon: Icons.star_rounded,
+                          label: series.voteAverage.toStringAsFixed(1),
+                        ),
                         _MetaChip(icon: Icons.tv, label: series.status),
-                        if (series.firstAirDate != null) _MetaChip(icon: Icons.event, label: '${series.firstAirDate!.year}'),
+                        if (series.firstAirDate != null)
+                          _MetaChip(
+                            icon: Icons.event,
+                            label: '${series.firstAirDate!.year}',
+                          ),
                       ],
                     ),
                     if (series.genres.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      Wrap(spacing: 8, children: series.genres.map((g) => Chip(label: Text(g))).toList()),
+                      Wrap(
+                        spacing: 8,
+                        children: series.genres
+                            .map((g) => Chip(label: Text(g)))
+                            .toList(),
+                      ),
                     ],
                     const SizedBox(height: 16),
                     Row(
@@ -73,14 +104,20 @@ class SeriesDetailsScreen extends ConsumerWidget {
                           child: FilledButton.icon(
                             onPressed: series.seasons.isEmpty
                                 ? null
-                                : () => context.push('/series/$tmdbId/season/${series.seasons.first.seasonNumber}'),
+                                : () => context.push(
+                                    '/series/$tmdbId/season/${series.seasons.first.seasonNumber}',
+                                  ),
                             icon: const Icon(Icons.play_arrow_rounded),
                             label: const Text('Start Watching'),
                           ),
                         ),
                         const SizedBox(width: 8),
                         IconButton.filledTonal(
-                          onPressed: () => showAddToListSheet(context, ref, seriesTmdbId: tmdbId),
+                          onPressed: () => showAddToListSheet(
+                            context,
+                            ref,
+                            seriesTmdbId: tmdbId,
+                          ),
                           icon: const Icon(Icons.playlist_add),
                         ),
                       ],
@@ -88,18 +125,36 @@ class SeriesDetailsScreen extends ConsumerWidget {
                     if (series.trailerYoutubeKey != null) ...[
                       const SizedBox(height: 8),
                       OutlinedButton.icon(
-                        onPressed: () => launchUrl(Uri.parse('https://www.youtube.com/watch?v=${series.trailerYoutubeKey}'),
-                            mode: LaunchMode.externalApplication),
+                        onPressed: () => launchUrl(
+                          Uri.parse(
+                            'https://www.youtube.com/watch?v=${series.trailerYoutubeKey}',
+                          ),
+                          mode: LaunchMode.externalApplication,
+                        ),
                         icon: const Icon(Icons.play_circle_outline),
                         label: const Text('Watch Trailer'),
                       ),
                     ],
-                    if (series.overview != null && series.overview!.isNotEmpty) ...[
+                    if (series.overview != null &&
+                        series.overview!.isNotEmpty) ...[
                       const SizedBox(height: 20),
-                      Text(strings.overview, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(
+                        strings.overview,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
                       const SizedBox(height: 6),
-                      Text(series.overview!, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        series.overview!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
+                    const SizedBox(height: 24),
+                    EngagementSection(
+                      targetType: TargetType.series,
+                      targetId: series.id,
+                      title: strings.community,
+                    ),
                   ],
                 ),
               ),
@@ -108,21 +163,31 @@ class SeriesDetailsScreen extends ConsumerWidget {
               SliverToBoxAdapter(child: SectionHeader(title: strings.seasons)),
               SliverList.list(
                 children: series.seasons
-                    .map((season) => ListTile(
-                          leading: SizedBox(
-                            width: 48,
-                            child: season.posterPath != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: CachedNetworkImage(imageUrl: TmdbImages.poster(season.posterPath, size: 'w92')!, fit: BoxFit.cover),
-                                  )
-                                : const Icon(Icons.image_not_supported_outlined),
-                          ),
-                          title: Text(season.name),
-                          subtitle: Text('${season.episodeCount} episodes'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => context.push('/series/$tmdbId/season/${season.seasonNumber}'),
-                        ))
+                    .map(
+                      (season) => ListTile(
+                        leading: SizedBox(
+                          width: 48,
+                          child: season.posterPath != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: CachedNetworkImage(
+                                    imageUrl: TmdbImages.poster(
+                                      season.posterPath,
+                                      size: 'w92',
+                                    )!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const Icon(Icons.image_not_supported_outlined),
+                        ),
+                        title: Text(season.name),
+                        subtitle: Text('${season.episodeCount} episodes'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(
+                          '/series/$tmdbId/season/${season.seasonNumber}',
+                        ),
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -135,7 +200,8 @@ class SeriesDetailsScreen extends ConsumerWidget {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: series.cast.length,
-                    separatorBuilder: (context, index) => const SizedBox(width: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final member = series.cast[index];
                       return SizedBox(
@@ -144,12 +210,23 @@ class SeriesDetailsScreen extends ConsumerWidget {
                           children: [
                             CircleAvatar(
                               radius: 36,
-                              backgroundImage:
-                                  member.profilePath != null ? NetworkImage(TmdbImages.profile(member.profilePath)!) : null,
-                              child: member.profilePath == null ? const Icon(Icons.person) : null,
+                              backgroundImage: member.profilePath != null
+                                  ? NetworkImage(
+                                      TmdbImages.profile(member.profilePath)!,
+                                    )
+                                  : null,
+                              child: member.profilePath == null
+                                  ? const Icon(Icons.person)
+                                  : null,
                             ),
                             const SizedBox(height: 6),
-                            Text(member.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              member.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ],
                         ),
                       );
@@ -171,7 +248,8 @@ class SeriesDetailsScreen extends ConsumerWidget {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: result.items.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 12),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
                         itemBuilder: (context, index) {
                           final s = result.items[index];
                           return PosterCard(

@@ -1,8 +1,8 @@
 # WatchLog
 
 A TV Time-inspired series & movie tracker, being built with an original visual identity, clean
-architecture, and a real production-shaped backend + web client. Built **backend-first**, then the
-Flutter web app; the React admin dashboard is deliberately not started yet (see
+architecture, and a real production-shaped backend + Flutter client. Built **backend-first**, then
+the Flutter app; the React admin dashboard is deliberately not started yet (see
 [`docs/ROADMAP.md`](docs/ROADMAP.md)) rather than shipped as a half-finished stub.
 
 ## What's here today
@@ -17,7 +17,7 @@ backend/            ASP.NET Core 9 Web API — Clean Architecture, fully working
   tests/
     WatchLog.Application.Tests/       unit tests (xUnit + FluentAssertions + Moq)
     WatchLog.Api.IntegrationTests/    integration tests (WebApplicationFactory + Testcontainers)
-app/                 Flutter web client — Material 3, Riverpod, go_router
+app/                 Flutter client — web shipped, Android/iOS scaffolds added
   lib/
     core/             theme, router, network (Dio + JWT auto-refresh), models, localization (ar/en + RTL)
     features/         splash, auth, home, discover, details, episode tracking, stats, profile,
@@ -65,14 +65,28 @@ docker compose --env-file .env -f infra/docker-compose.yml up --build
 - Health: http://localhost:8080/health
 - Web app: http://localhost:8081
 
+If you want an admin account for `/api/v1/admin/*`, set `Admin__InitialAdminEmail` in `.env`, then
+register/login with that same email before starting the API. On startup the API promotes that
+existing user into the `Admin` role automatically.
+
 ### Run the Flutter app locally against a running API
 
 ```bash
 cd app
-flutter config --enable-web
 flutter pub get
+
+# Web
 flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8080
+
+# Android emulator
+flutter run -d android --dart-define=API_BASE_URL=http://10.0.2.2:8080
+
+# iOS simulator
+flutter run -d ios --dart-define=API_BASE_URL=http://localhost:8080
 ```
+
+For a physical phone on the same network, replace `localhost` / `10.0.2.2` with your Mac's LAN IP
+address. Native token storage now uses `flutter_secure_storage`; web still uses browser storage.
 
 ### Run the API locally against dockerized Postgres/Redis
 

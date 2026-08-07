@@ -4,6 +4,31 @@ namespace WatchLog.Application.Admin;
 
 public class AdminImportService(ICatalogService catalog) : IAdminImportService
 {
+    public async Task<ImportedCatalogItemDto> ImportMovieByTmdbIdAsync(int tmdbId, CancellationToken ct = default)
+    {
+        var movie = await catalog.GetMovieDetailAsync(tmdbId, ct);
+        return new ImportedCatalogItemDto(movie.Id, "Movie", movie.Title, $"TMDB movie {movie.TmdbId}");
+    }
+
+    public async Task<ImportedCatalogItemDto> ImportSeriesByTmdbIdAsync(int tmdbId, CancellationToken ct = default)
+    {
+        var series = await catalog.GetSeriesDetailAsync(tmdbId, ct);
+        return new ImportedCatalogItemDto(series.Id, "Series", series.Title, $"TMDB series {series.TmdbId}");
+    }
+
+    public async Task<ImportedCatalogItemDto> ImportEpisodeAsync(int seriesTmdbId, int seasonNumber, int episodeNumber, CancellationToken ct = default)
+    {
+        var season = await catalog.GetSeasonAsync(seriesTmdbId, seasonNumber, ct);
+        var episode = season.Episodes.FirstOrDefault(e => e.EpisodeNumber == episodeNumber)
+            ?? throw new InvalidOperationException($"Episode S{seasonNumber}E{episodeNumber} was not found in TMDB.");
+
+        return new ImportedCatalogItemDto(
+            episode.Id,
+            "Episode",
+            episode.Title,
+            $"Series {seriesTmdbId} • S{seasonNumber}E{episodeNumber}");
+    }
+
     public Task<ImportResultDto> ImportMoviesByYearAsync(int year, int pages, CancellationToken ct = default) =>
         ImportAsync(year, pages,
             (p, c) => catalog.DiscoverMoviesByYearAsync(year, p, c),

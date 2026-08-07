@@ -12,6 +12,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/async_value_view.dart';
 import '../../core/widgets/poster_card.dart';
 import '../../core/widgets/section_header.dart';
+import '../engagement/engagement_section.dart';
+import '../../core/models/engagement_models.dart';
 import 'add_to_list_sheet.dart';
 import 'details_providers.dart';
 
@@ -32,7 +34,9 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
   Future<void> _toggleWatched() async {
     setState(() => _isSubmittingWatched = true);
     try {
-      await ref.read(trackingApiProvider).markMovie(movieTmdbId: widget.tmdbId, isWatched: !_isWatched);
+      await ref
+          .read(trackingApiProvider)
+          .markMovie(movieTmdbId: widget.tmdbId, isWatched: !_isWatched);
       setState(() => _isWatched = !_isWatched);
     } catch (e) {
       _showError(e);
@@ -44,7 +48,12 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
   Future<void> _toggleFavorite() async {
     setState(() => _isSubmittingFavorite = true);
     try {
-      await ref.read(trackingApiProvider).toggleMovieFavorite(movieTmdbId: widget.tmdbId, isFavorite: !_isFavorite);
+      await ref
+          .read(trackingApiProvider)
+          .toggleMovieFavorite(
+            movieTmdbId: widget.tmdbId,
+            isFavorite: !_isFavorite,
+          );
       setState(() => _isFavorite = !_isFavorite);
     } catch (e) {
       _showError(e);
@@ -55,8 +64,11 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
 
   void _showError(Object e) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(e is ApiException ? e.message : 'Something went wrong.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e is ApiException ? e.message : 'Something went wrong.'),
+      ),
+    );
   }
 
   @override
@@ -79,10 +91,23 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                   fit: StackFit.expand,
                   children: [
                     if (movie.backdropPath != null)
-                      CachedNetworkImage(imageUrl: TmdbImages.backdrop(movie.backdropPath)!, fit: BoxFit.cover)
+                      CachedNetworkImage(
+                        imageUrl: TmdbImages.backdrop(movie.backdropPath)!,
+                        fit: BoxFit.cover,
+                      )
                     else
-                      Container(color: Theme.of(context).colorScheme.surfaceContainerHigh),
-                    DecoratedBox(decoration: BoxDecoration(gradient: AppTheme.heroScrim(Theme.of(context).colorScheme))),
+                      Container(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHigh,
+                      ),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.heroScrim(
+                          Theme.of(context).colorScheme,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -93,39 +118,77 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(movie.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      movie.title,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 12,
                       runSpacing: 4,
                       children: [
-                        _MetaChip(icon: Icons.star_rounded, label: movie.voteAverage.toStringAsFixed(1)),
-                        if (movie.runtimeMinutes != null) _MetaChip(icon: Icons.schedule, label: '${movie.runtimeMinutes} min'),
-                        if (movie.releaseDate != null) _MetaChip(icon: Icons.event, label: '${movie.releaseDate!.year}'),
+                        _MetaChip(
+                          icon: Icons.star_rounded,
+                          label: movie.voteAverage.toStringAsFixed(1),
+                        ),
+                        if (movie.runtimeMinutes != null)
+                          _MetaChip(
+                            icon: Icons.schedule,
+                            label: '${movie.runtimeMinutes} min',
+                          ),
+                        if (movie.releaseDate != null)
+                          _MetaChip(
+                            icon: Icons.event,
+                            label: '${movie.releaseDate!.year}',
+                          ),
                       ],
                     ),
                     if (movie.genres.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      Wrap(spacing: 8, children: movie.genres.map((g) => Chip(label: Text(g))).toList()),
+                      Wrap(
+                        spacing: 8,
+                        children: movie.genres
+                            .map((g) => Chip(label: Text(g)))
+                            .toList(),
+                      ),
                     ],
                     const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: FilledButton.icon(
-                            onPressed: _isSubmittingWatched ? null : _toggleWatched,
-                            icon: Icon(_isWatched ? Icons.check_circle : Icons.check_circle_outline),
-                            label: Text(_isWatched ? 'Watched' : strings.markWatched),
+                            onPressed: _isSubmittingWatched
+                                ? null
+                                : _toggleWatched,
+                            icon: Icon(
+                              _isWatched
+                                  ? Icons.check_circle
+                                  : Icons.check_circle_outline,
+                            ),
+                            label: Text(
+                              _isWatched ? 'Watched' : strings.markWatched,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         IconButton.filledTonal(
-                          onPressed: _isSubmittingFavorite ? null : _toggleFavorite,
-                          icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border),
+                          onPressed: _isSubmittingFavorite
+                              ? null
+                              : _toggleFavorite,
+                          icon: Icon(
+                            _isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         IconButton.filledTonal(
-                          onPressed: () => showAddToListSheet(context, ref, movieTmdbId: widget.tmdbId),
+                          onPressed: () => showAddToListSheet(
+                            context,
+                            ref,
+                            movieTmdbId: widget.tmdbId,
+                          ),
                           icon: const Icon(Icons.playlist_add),
                         ),
                       ],
@@ -133,18 +196,36 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                     if (movie.trailerYoutubeKey != null) ...[
                       const SizedBox(height: 8),
                       OutlinedButton.icon(
-                        onPressed: () => launchUrl(Uri.parse('https://www.youtube.com/watch?v=${movie.trailerYoutubeKey}'),
-                            mode: LaunchMode.externalApplication),
+                        onPressed: () => launchUrl(
+                          Uri.parse(
+                            'https://www.youtube.com/watch?v=${movie.trailerYoutubeKey}',
+                          ),
+                          mode: LaunchMode.externalApplication,
+                        ),
                         icon: const Icon(Icons.play_circle_outline),
                         label: const Text('Watch Trailer'),
                       ),
                     ],
-                    if (movie.overview != null && movie.overview!.isNotEmpty) ...[
+                    if (movie.overview != null &&
+                        movie.overview!.isNotEmpty) ...[
                       const SizedBox(height: 20),
-                      Text(strings.overview, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(
+                        strings.overview,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
                       const SizedBox(height: 6),
-                      Text(movie.overview!, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(
+                        movie.overview!,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
+                    const SizedBox(height: 24),
+                    EngagementSection(
+                      targetType: TargetType.movie,
+                      targetId: movie.id,
+                      title: strings.community,
+                    ),
                   ],
                 ),
               ),
@@ -167,12 +248,23 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                           children: [
                             CircleAvatar(
                               radius: 36,
-                              backgroundImage:
-                                  member.profilePath != null ? NetworkImage(TmdbImages.profile(member.profilePath)!) : null,
-                              child: member.profilePath == null ? const Icon(Icons.person) : null,
+                              backgroundImage: member.profilePath != null
+                                  ? NetworkImage(
+                                      TmdbImages.profile(member.profilePath)!,
+                                    )
+                                  : null,
+                              child: member.profilePath == null
+                                  ? const Icon(Icons.person)
+                                  : null,
                             ),
                             const SizedBox(height: 6),
-                            Text(member.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              member.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ],
                         ),
                       );
@@ -187,7 +279,9 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
                 height: 250,
                 child: Consumer(
                   builder: (context, ref, _) {
-                    final similar = ref.watch(similarMoviesProvider(widget.tmdbId));
+                    final similar = ref.watch(
+                      similarMoviesProvider(widget.tmdbId),
+                    );
                     return AsyncValueView(
                       value: similar,
                       data: (result) => ListView.separated(

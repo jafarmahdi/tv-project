@@ -1,4 +1,5 @@
-DateTime? _parseDate(dynamic value) => value == null ? null : DateTime.parse(value as String);
+DateTime? _parseDate(dynamic value) =>
+    value == null ? null : DateTime.parse(value as String);
 
 /// Mirrors `WatchLog.Application.Catalog.MovieSummaryDto`.
 class MovieSummary {
@@ -21,14 +22,14 @@ class MovieSummary {
   });
 
   factory MovieSummary.fromJson(Map<String, dynamic> json) => MovieSummary(
-        tmdbId: json['tmdbId'] as int,
-        title: json['title'] as String,
-        posterPath: json['posterPath'] as String?,
-        backdropPath: json['backdropPath'] as String?,
-        releaseDate: _parseDate(json['releaseDate']),
-        voteAverage: (json['voteAverage'] as num).toDouble(),
-        genres: (json['genres'] as List<dynamic>).cast<String>(),
-      );
+    tmdbId: json['tmdbId'] as int,
+    title: json['title'] as String,
+    posterPath: json['posterPath'] as String?,
+    backdropPath: json['backdropPath'] as String?,
+    releaseDate: _parseDate(json['releaseDate']),
+    voteAverage: (json['voteAverage'] as num).toDouble(),
+    genres: (json['genres'] as List<dynamic>).cast<String>(),
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.SeriesSummaryDto`.
@@ -52,14 +53,14 @@ class SeriesSummary {
   });
 
   factory SeriesSummary.fromJson(Map<String, dynamic> json) => SeriesSummary(
-        tmdbId: json['tmdbId'] as int,
-        title: json['title'] as String,
-        posterPath: json['posterPath'] as String?,
-        backdropPath: json['backdropPath'] as String?,
-        firstAirDate: _parseDate(json['firstAirDate']),
-        voteAverage: (json['voteAverage'] as num).toDouble(),
-        genres: (json['genres'] as List<dynamic>).cast<String>(),
-      );
+    tmdbId: json['tmdbId'] as int,
+    title: json['title'] as String,
+    posterPath: json['posterPath'] as String?,
+    backdropPath: json['backdropPath'] as String?,
+    firstAirDate: _parseDate(json['firstAirDate']),
+    voteAverage: (json['voteAverage'] as num).toDouble(),
+    genres: (json['genres'] as List<dynamic>).cast<String>(),
+  );
 }
 
 class CastMember {
@@ -68,18 +69,24 @@ class CastMember {
   final String? character;
   final String? profilePath;
 
-  CastMember({required this.tmdbId, required this.name, this.character, this.profilePath});
+  CastMember({
+    required this.tmdbId,
+    required this.name,
+    this.character,
+    this.profilePath,
+  });
 
   factory CastMember.fromJson(Map<String, dynamic> json) => CastMember(
-        tmdbId: json['tmdbId'] as int,
-        name: json['name'] as String,
-        character: json['character'] as String?,
-        profilePath: json['profilePath'] as String?,
-      );
+    tmdbId: json['tmdbId'] as int,
+    name: json['name'] as String,
+    character: json['character'] as String?,
+    profilePath: json['profilePath'] as String?,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.MovieDetailDto`.
 class MovieDetail {
+  final String id;
   final int tmdbId;
   final String title;
   final String? originalTitle;
@@ -94,6 +101,7 @@ class MovieDetail {
   final String? trailerYoutubeKey;
 
   MovieDetail({
+    required this.id,
     required this.tmdbId,
     required this.title,
     this.originalTitle,
@@ -109,19 +117,22 @@ class MovieDetail {
   });
 
   factory MovieDetail.fromJson(Map<String, dynamic> json) => MovieDetail(
-        tmdbId: json['tmdbId'] as int,
-        title: json['title'] as String,
-        originalTitle: json['originalTitle'] as String?,
-        overview: json['overview'] as String?,
-        posterPath: json['posterPath'] as String?,
-        backdropPath: json['backdropPath'] as String?,
-        releaseDate: _parseDate(json['releaseDate']),
-        runtimeMinutes: json['runtimeMinutes'] as int?,
-        voteAverage: (json['voteAverage'] as num).toDouble(),
-        genres: (json['genres'] as List<dynamic>).cast<String>(),
-        cast: (json['cast'] as List<dynamic>).map((e) => CastMember.fromJson(e as Map<String, dynamic>)).toList(),
-        trailerYoutubeKey: json['trailerYoutubeKey'] as String?,
-      );
+    id: json['id'] as String,
+    tmdbId: json['tmdbId'] as int,
+    title: json['title'] as String,
+    originalTitle: json['originalTitle'] as String?,
+    overview: json['overview'] as String?,
+    posterPath: json['posterPath'] as String?,
+    backdropPath: json['backdropPath'] as String?,
+    releaseDate: _parseDate(json['releaseDate']),
+    runtimeMinutes: json['runtimeMinutes'] as int?,
+    voteAverage: (json['voteAverage'] as num).toDouble(),
+    genres: (json['genres'] as List<dynamic>).cast<String>(),
+    cast: (json['cast'] as List<dynamic>)
+        .map((e) => CastMember.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    trailerYoutubeKey: json['trailerYoutubeKey'] as String?,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.SeasonSummaryDto`.
@@ -141,16 +152,17 @@ class SeasonSummary {
   });
 
   factory SeasonSummary.fromJson(Map<String, dynamic> json) => SeasonSummary(
-        seasonNumber: json['seasonNumber'] as int,
-        name: json['name'] as String,
-        posterPath: json['posterPath'] as String?,
-        airDate: _parseDate(json['airDate']),
-        episodeCount: json['episodeCount'] as int,
-      );
+    seasonNumber: json['seasonNumber'] as int,
+    name: json['name'] as String,
+    posterPath: json['posterPath'] as String?,
+    airDate: _parseDate(json['airDate']),
+    episodeCount: json['episodeCount'] as int,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.SeriesDetailDto`.
 class SeriesDetail {
+  final String id;
   final int tmdbId;
   final String title;
   final String? originalTitle;
@@ -167,6 +179,7 @@ class SeriesDetail {
   final String? trailerYoutubeKey;
 
   SeriesDetail({
+    required this.id,
     required this.tmdbId,
     required this.title,
     this.originalTitle,
@@ -184,27 +197,31 @@ class SeriesDetail {
   });
 
   factory SeriesDetail.fromJson(Map<String, dynamic> json) => SeriesDetail(
-        tmdbId: json['tmdbId'] as int,
-        title: json['title'] as String,
-        originalTitle: json['originalTitle'] as String?,
-        overview: json['overview'] as String?,
-        posterPath: json['posterPath'] as String?,
-        backdropPath: json['backdropPath'] as String?,
-        firstAirDate: _parseDate(json['firstAirDate']),
-        lastAirDate: _parseDate(json['lastAirDate']),
-        status: json['status'] as String,
-        voteAverage: (json['voteAverage'] as num).toDouble(),
-        genres: (json['genres'] as List<dynamic>).cast<String>(),
-        cast: (json['cast'] as List<dynamic>).map((e) => CastMember.fromJson(e as Map<String, dynamic>)).toList(),
-        seasons: (json['seasons'] as List<dynamic>)
-            .map((e) => SeasonSummary.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        trailerYoutubeKey: json['trailerYoutubeKey'] as String?,
-      );
+    id: json['id'] as String,
+    tmdbId: json['tmdbId'] as int,
+    title: json['title'] as String,
+    originalTitle: json['originalTitle'] as String?,
+    overview: json['overview'] as String?,
+    posterPath: json['posterPath'] as String?,
+    backdropPath: json['backdropPath'] as String?,
+    firstAirDate: _parseDate(json['firstAirDate']),
+    lastAirDate: _parseDate(json['lastAirDate']),
+    status: json['status'] as String,
+    voteAverage: (json['voteAverage'] as num).toDouble(),
+    genres: (json['genres'] as List<dynamic>).cast<String>(),
+    cast: (json['cast'] as List<dynamic>)
+        .map((e) => CastMember.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    seasons: (json['seasons'] as List<dynamic>)
+        .map((e) => SeasonSummary.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    trailerYoutubeKey: json['trailerYoutubeKey'] as String?,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.EpisodeSummaryDto`.
 class EpisodeSummary {
+  final String id;
   final int episodeNumber;
   final String title;
   final String? overview;
@@ -213,6 +230,7 @@ class EpisodeSummary {
   final int? runtimeMinutes;
 
   EpisodeSummary({
+    required this.id,
     required this.episodeNumber,
     required this.title,
     this.overview,
@@ -222,13 +240,14 @@ class EpisodeSummary {
   });
 
   factory EpisodeSummary.fromJson(Map<String, dynamic> json) => EpisodeSummary(
-        episodeNumber: json['episodeNumber'] as int,
-        title: json['title'] as String,
-        overview: json['overview'] as String?,
-        stillPath: json['stillPath'] as String?,
-        airDate: _parseDate(json['airDate']),
-        runtimeMinutes: json['runtimeMinutes'] as int?,
-      );
+    id: json['id'] as String,
+    episodeNumber: json['episodeNumber'] as int,
+    title: json['title'] as String,
+    overview: json['overview'] as String?,
+    stillPath: json['stillPath'] as String?,
+    airDate: _parseDate(json['airDate']),
+    runtimeMinutes: json['runtimeMinutes'] as int?,
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.SeasonDetailDto`.
@@ -250,15 +269,15 @@ class SeasonDetail {
   });
 
   factory SeasonDetail.fromJson(Map<String, dynamic> json) => SeasonDetail(
-        seasonNumber: json['seasonNumber'] as int,
-        name: json['name'] as String,
-        overview: json['overview'] as String?,
-        posterPath: json['posterPath'] as String?,
-        airDate: _parseDate(json['airDate']),
-        episodes: (json['episodes'] as List<dynamic>)
-            .map((e) => EpisodeSummary.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    seasonNumber: json['seasonNumber'] as int,
+    name: json['name'] as String,
+    overview: json['overview'] as String?,
+    posterPath: json['posterPath'] as String?,
+    airDate: _parseDate(json['airDate']),
+    episodes: (json['episodes'] as List<dynamic>)
+        .map((e) => EpisodeSummary.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 /// Mirrors `WatchLog.Application.Catalog.WatchProviderDto`.
@@ -267,11 +286,15 @@ class WatchProvider {
   final String? logoPath;
   final String type;
 
-  WatchProvider({required this.providerName, this.logoPath, required this.type});
+  WatchProvider({
+    required this.providerName,
+    this.logoPath,
+    required this.type,
+  });
 
   factory WatchProvider.fromJson(Map<String, dynamic> json) => WatchProvider(
-        providerName: json['providerName'] as String,
-        logoPath: json['logoPath'] as String?,
-        type: json['type'] as String,
-      );
+    providerName: json['providerName'] as String,
+    logoPath: json['logoPath'] as String?,
+    type: json['type'] as String,
+  );
 }

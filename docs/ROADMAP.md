@@ -4,6 +4,26 @@ This tracks scope deliberately deferred so each layer got real depth instead of 
 a shallow stub. Backend (phase 1) and the Flutter **web** client (phase 2) are done; what's below is
 what's left, and what's explicitly known to be missing from what already shipped.
 
+## Product feedback backlog — 2026-08-07
+
+Initial response shipped on Friday, August 7, 2026:
+
+- Comments + ratings are now wired into movie, series, and episode surfaces.
+- Profile got a richer layout and visible achievement badges.
+- In-app admin tools now exist for direct TMDB imports plus bulk year imports.
+- Android/iOS project scaffolds were added, and native token storage now uses secure storage.
+
+Still visible after that first pass:
+
+- **UI/UX overhaul**: the current web client works, but it needs a deliberate product-design pass
+  for hierarchy, spacing, affordances, empty/loading states, and overall polish.
+- **Profile iteration**: the profile is materially better, but still needs another polish pass to
+  feel flagship-quality.
+- **Admin operations UX**: the Flutter app now has practical admin import tools, but the full
+  moderation/dashboard experience is still pending.
+- **Native mobile production readiness**: Android/iOS are scaffolded, but device QA, SDK setup,
+  signing, and store-grade release work remain.
+
 ## Phase 2 follow-ups — Flutter app hardening
 
 The web client is real and working (`app/`) — Material 3 theme, `go_router` + Riverpod, a
@@ -12,20 +32,18 @@ localization with RTL, and the core screens: Splash, Login, Register, Home, Disc
 Details (movie + series), Episode Page (season tracking), Statistics, Profile, Notifications,
 Settings, AI Assistant. Known gaps, in roughly the order they'd bite:
 
-- **Native targets**: only `web` is enabled today (`flutter create --platforms=web`). Adding
-  iOS/Android/Windows/macOS/Linux is `flutter create .` with the remaining platform flags plus each
-  platform's usual setup (signing, entitlements, `flutter_secure_storage` in place of the current
-  `shared_preferences`-based token storage, which is web-only-acceptable but not native-shippable).
+- **UI/UX polish pass**: revisit navigation clarity, content density, CTA prominence, empty/error
+  states, and mobile-sized responsive behavior so the app feels intentional instead of merely
+  functional.
+- **Native targets**: Android/iOS scaffolds now exist and auth token storage is native-safe via
+  `flutter_secure_storage`; the remaining work is build-environment setup, signing, device QA, push
+  notification registration, and any desktop targets beyond that.
 - **Social/activity feed screen**: the backend's `SocialController` (follow, activity feed,
   comments, likes) has no client screen yet — `Profile` only surfaces the user's own lists.
 - **Collections screen**: `CollectionsController` (curated Marvel/DC/Oscar-winners-style lists)
   isn't surfaced in the client.
 - **Premium screen**: skipped — there's no subscription/payment feature anywhere in the backend
   yet, so a Premium screen would be UI with nothing behind it.
-- **User ratings**: Details screens show TMDB's own `voteAverage` (read-only) but not a
-  submit-your-own-rating control — `RatingsController` expects the movie/series' *local* database
-  id, which today's `MovieDetailDto`/`SeriesDetailDto` don't expose (only `TmdbId`). Needs a small
-  backend DTO change before the client can wire it up.
 - **Offline mode**: no local cache (Drift/Isar) or optimistic offline edits yet — every screen is
   online-only today.
 - **Push notifications**: in-app notifications (REST + live SignalR push) work; FCM/APNs device
@@ -40,8 +58,11 @@ Settings, AI Assistant. Known gaps, in roughly the order they'd bite:
 
 ## Phase 3 — Admin dashboard (React + TailwindCSS)
 
-- Auth against the same JWT API (an `Admin` role already exists in the Identity schema — needs a
-  role-seeding step and `[Authorize(Roles = "Admin")]` guards on moderation endpoints).
+- Auth against the same JWT API. The project already has `Admin:InitialAdminEmail` bootstrap and a
+  pragmatic in-app admin tools screen in Flutter; this phase is about a dedicated dashboard, better
+  permissions UX, and a more complete operational surface.
+- Catalog curation tools beyond the current import-focused admin screen: richer review/edit flows
+  for films, series, and episodes without touching the database manually.
 - Content moderation: comments/reports queue, user management, achievement/collection curation.
 - Analytics: platform-wide stats dashboards (reuse `IStatsService`'s aggregation patterns, scoped
   to all users instead of one).

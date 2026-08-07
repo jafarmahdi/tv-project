@@ -10,11 +10,13 @@ public class UserService(IIdentityService identityService, IUnitOfWork unitOfWor
     public async Task<MeDto> GetMeAsync(Guid userId, CancellationToken ct = default)
     {
         var user = await identityService.GetUserAsync(userId) ?? throw new NotFoundException("User", userId);
+        var roles = await identityService.GetRolesAsync(userId);
         var followerCount = await unitOfWork.Repository<Follow>().Query().CountAsync(f => f.FollowingId == userId, ct);
         var followingCount = await unitOfWork.Repository<Follow>().Query().CountAsync(f => f.FollowerId == userId, ct);
 
         return new MeDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.Bio, user.Locale,
-            user.ThemePreference, user.IsPrivate, user.CreatedAt, followerCount, followingCount);
+            user.ThemePreference, user.IsPrivate, user.CreatedAt, followerCount, followingCount,
+            roles.Contains("Admin", StringComparer.OrdinalIgnoreCase));
     }
 
     public async Task<UserProfileDto> GetPublicProfileAsync(Guid targetUserId, CancellationToken ct = default)

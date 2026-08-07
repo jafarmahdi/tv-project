@@ -21,6 +21,7 @@ public record MeDto(
     bool IsPrivate,
     DateTimeOffset CreatedAt,
     int FollowerCount,
-    int FollowingCount);
+    int FollowingCount,
+    bool IsAdmin);
 
 public record UpdateProfileRequest(string? DisplayName, string? AvatarUrl, string? Bio, string? Locale, int? ThemePreference, bool? IsPrivate);

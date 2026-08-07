@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/admin_tools_screen.dart';
 import '../../features/ai_assistant/ai_assistant_screen.dart';
 import '../../features/auth/auth_provider.dart';
 import '../../features/auth/login_screen.dart';
@@ -55,29 +56,63 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(navigationShell: shell),
         branches: [
-          StatefulShellBranch(routes: [GoRoute(path: '/home', builder: (context, state) => const HomeScreen())]),
           StatefulShellBranch(
-              routes: [GoRoute(path: '/discover', builder: (context, state) => const DiscoverScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: '/stats', builder: (context, state) => const StatsScreen())]),
+            routes: [
+              GoRoute(
+                path: '/home',
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
           StatefulShellBranch(
-              routes: [GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen())]),
+            routes: [
+              GoRoute(
+                path: '/discover',
+                builder: (context, state) => const DiscoverScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/stats',
+                builder: (context, state) => const StatsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
         path: '/movie/:tmdbId',
-        builder: (context, state) =>
-            MovieDetailsScreen(tmdbId: int.parse(state.pathParameters['tmdbId']!)),
+        builder: (context, state) => MovieDetailsScreen(
+          tmdbId: int.parse(state.pathParameters['tmdbId']!),
+        ),
       ),
       GoRoute(
         path: '/series/:tmdbId',
-        builder: (context, state) =>
-            SeriesDetailsScreen(tmdbId: int.parse(state.pathParameters['tmdbId']!)),
+        builder: (context, state) => SeriesDetailsScreen(
+          tmdbId: int.parse(state.pathParameters['tmdbId']!),
+        ),
       ),
       GoRoute(
         path: '/series/:tmdbId/season/:seasonNumber',
@@ -86,9 +121,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           seasonNumber: int.parse(state.pathParameters['seasonNumber']!),
         ),
       ),
-      GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
-      GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
-      GoRoute(path: '/ai-assistant', builder: (context, state) => const AiAssistantScreen()),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/ai-assistant',
+        builder: (context, state) => const AiAssistantScreen(),
+      ),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminToolsScreen(),
+      ),
     ],
   );
 });

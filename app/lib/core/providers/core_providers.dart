@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../network/ai_api.dart';
+import '../network/admin_api.dart';
 import '../network/api_client.dart';
 import '../network/auth_api.dart';
 import '../network/catalog_api.dart';
 import '../network/lists_api.dart';
 import '../network/notifications_api.dart';
+import '../network/ratings_api.dart';
+import '../network/social_api.dart';
 import '../network/stats_api.dart';
 import '../network/token_storage.dart';
 import '../network/tracking_api.dart';
@@ -22,11 +25,36 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   return client;
 });
 
-final authApiProvider = Provider<AuthApi>((ref) => AuthApi(ref.watch(apiClientProvider)));
-final usersApiProvider = Provider<UsersApi>((ref) => UsersApi(ref.watch(apiClientProvider)));
-final catalogApiProvider = Provider<CatalogApi>((ref) => CatalogApi(ref.watch(apiClientProvider)));
-final trackingApiProvider = Provider<TrackingApi>((ref) => TrackingApi(ref.watch(apiClientProvider)));
-final listsApiProvider = Provider<ListsApi>((ref) => ListsApi(ref.watch(apiClientProvider)));
-final statsApiProvider = Provider<StatsApi>((ref) => StatsApi(ref.watch(apiClientProvider)));
-final notificationsApiProvider = Provider<NotificationsApi>((ref) => NotificationsApi(ref.watch(apiClientProvider)));
-final aiApiProvider = Provider<AiApi>((ref) => AiApi(ref.watch(apiClientProvider)));
+final authApiProvider = Provider<AuthApi>(
+  (ref) => AuthApi(ref.watch(apiClientProvider)),
+);
+final usersApiProvider = Provider<UsersApi>(
+  (ref) => UsersApi(ref.watch(apiClientProvider)),
+);
+final catalogApiProvider = Provider<CatalogApi>(
+  (ref) => CatalogApi(ref.watch(apiClientProvider)),
+);
+final trackingApiProvider = Provider<TrackingApi>(
+  (ref) => TrackingApi(ref.watch(apiClientProvider)),
+);
+final listsApiProvider = Provider<ListsApi>(
+  (ref) => ListsApi(ref.watch(apiClientProvider)),
+);
+final statsApiProvider = Provider<StatsApi>(
+  (ref) => StatsApi(ref.watch(apiClientProvider)),
+);
+final notificationsApiProvider = Provider<NotificationsApi>(
+  (ref) => NotificationsApi(ref.watch(apiClientProvider)),
+);
+final ratingsApiProvider = Provider<RatingsApi>(
+  (ref) => RatingsApi(ref.watch(apiClientProvider)),
+);
+final socialApiProvider = Provider<SocialApi>(
+  (ref) => SocialApi(ref.watch(apiClientProvider)),
+);
+final adminApiProvider = Provider<AdminApi>(
+  (ref) => AdminApi(ref.watch(apiClientProvider)),
+);
+final aiApiProvider = Provider<AiApi>(
+  (ref) => AiApi(ref.watch(apiClientProvider)),
+);
